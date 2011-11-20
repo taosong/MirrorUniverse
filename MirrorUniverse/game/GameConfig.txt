@@ -1,2 +1,2 @@
-7, 4, 3, -1, maps/LeftLyb.txt, 3
-7, 4, 3, -1, maps/RightLyb.txt, 3
+3, 3, 2, -1, maps/test3-3.txt, 3
+3, 3, 2, -1, maps/test3-3.txt, 3

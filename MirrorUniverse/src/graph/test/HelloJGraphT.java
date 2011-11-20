@@ -68,7 +68,7 @@ public final class HelloJGraphT
      */
     public static void main(String [] args)
     {
-        UndirectedGraph<String, DefaultEdge> stringGraph = createStringGraph();
+        UndirectedGraph<PointPair, DefaultEdge> stringGraph = createStringGraph();
 
         // note undirected edges are printed as: {<v1>,<v2>}
         System.out.println(stringGraph.toString());
@@ -116,27 +116,26 @@ public final class HelloJGraphT
      *
      * @return a graph based on String objects.
      */
-    private static UndirectedGraph<String, DefaultEdge> createStringGraph()
+    private static UndirectedGraph<PointPair, DefaultEdge> createStringGraph()
     {
-        UndirectedGraph<String, DefaultEdge> g =
-            new SimpleGraph<String, DefaultEdge>(DefaultEdge.class);
+        UndirectedGraph<PointPair, DefaultEdge> g =
+            new SimpleGraph<PointPair, DefaultEdge>(DefaultEdge.class);
 
-        String v1 = "v1";
-        String v2 = "v2";
-        String v3 = "v3";
-        String v4 = "v4";
-
+        PointPair pp1 = new PointPair(1, 1, 1, 1);
+        PointPair pp2 = new PointPair(1, 1, 1, 1);        
+        PointPair pp3 = new PointPair(1, 1, 1, 1);
+        PointPair pp4 = new PointPair(1, 1, 1, 1);
         // add the vertices
-        g.addVertex(v1);
-        g.addVertex(v2);
-        g.addVertex(v3);
-        g.addVertex(v4);
+        g.addVertex(pp1);
+        g.addVertex(pp2);
+        g.addVertex(pp3);
+        g.addVertex(pp4);
 
         // add edges to create a circuit
-        g.addEdge(v1, v2);
-        g.addEdge(v2, v3);
-        g.addEdge(v3, v4);
-        g.addEdge(v4, v1);
+        g.addEdge(pp1, pp2);
+        g.addEdge(pp2, pp3);
+        g.addEdge(pp3, pp4);
+        g.addEdge(pp4, pp1);
 
         return g;
     }

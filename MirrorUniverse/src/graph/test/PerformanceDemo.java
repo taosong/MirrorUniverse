@@ -47,120 +47,114 @@ import org.jgrapht.*;
 import org.jgrapht.graph.*;
 import org.jgrapht.traverse.*;
 
-
 /**
  * A simple demo to test memory and CPU consumption on a graph with 3 million
  * elements.
- *
- * <p>NOTE: To run this demo you may need to increase the JVM max mem size. In
+ * 
+ * <p>
+ * NOTE: To run this demo you may need to increase the JVM max mem size. In
  * Sun's JVM it is done using the "-Xmx" switch. Specify "-Xmx300M" to set it to
- * 300MB.</p>
- *
- * <p>WARNING: Don't run this demo as-is on machines with less than 512MB
- * memory. Your machine will start paging severely. You need to first modify it
- * to have fewer graph elements. This is easily done by changing the loop
- * counters below.</p>
- *
+ * 300MB.
+ * </p>
+ * 
+ * <p>
+ * WARNING: Don't run this demo as-is on machines with less than 512MB memory.
+ * Your machine will start paging severely. You need to first modify it to have
+ * fewer graph elements. This is easily done by changing the loop counters
+ * below.
+ * </p>
+ * 
  * @author Barak Naveh
  * @since Aug 10, 2003
  */
-public final class PerformanceDemo
-{
-    //~ Methods ----------------------------------------------------------------
+public final class PerformanceDemo {
+	// ~ Methods
+	// ----------------------------------------------------------------
 
-    /**
-     * The starting point for the demo.
-     *
-     * @param args ignored.
-     */
-    public static void main(String [] args)
-    {
-        long time = System.currentTimeMillis();
+	/**
+	 * The starting point for the demo.
+	 * 
+	 * @param args
+	 *            ignored.
+	 */
+	public static void main(String[] args) {
+		long time = System.currentTimeMillis();
 
-        reportPerformanceFor("starting at", time);
+		reportPerformanceFor("starting at", time);
 
-        Graph<Object, DefaultEdge> g =
-            new Pseudograph<Object, DefaultEdge>(DefaultEdge.class);
-        Object prev;
-        Object curr;
+		Graph<Object, DefaultEdge> g = new Pseudograph<Object, DefaultEdge>(
+				DefaultEdge.class);
+		Object prev;
+		Object curr;
 
-        curr = prev = new Object();
-        g.addVertex(prev);
-        int n = 30;
+		curr = prev = new Object();
+		g.addVertex(prev);
+		int n = 30;
 
-        int numVertices = n*n*n*n;
-        int numEdgesPerVertex = 8;
-        int numElements = numVertices * (1 + numEdgesPerVertex);
+		int numVertices = n * n * n * n;
+		int numEdgesPerVertex = 8;
+		int numElements = numVertices * (1 + numEdgesPerVertex);
 
-        System.out.println(
-            "\n" + "allocating graph with " + numElements
-            + " elements (may take a few tens of seconds)...");
+		System.out.println("\n" + "allocating graph with " + numElements
+				+ " elements (may take a few tens of seconds)...");
 
-        for (int i = 0; i < numVertices; i++) {
-            curr = new Object();
-            g.addVertex(curr);
+		for (int i = 0; i < numVertices; i++) {
+			curr = new Object();
+			g.addVertex(curr);
 
-            for (int j = 0; j < numEdgesPerVertex; j++) {
-                g.addEdge(prev, curr);
-            }
+			for (int j = 0; j < numEdgesPerVertex; j++) {
+				g.addEdge(prev, curr);
+			}
 
-            prev = curr;
-        }
+			prev = curr;
+		}
 
-        reportPerformanceFor("graph allocation", time);
+		reportPerformanceFor("graph allocation", time);
 
-        time = System.currentTimeMillis();
+		time = System.currentTimeMillis();
 
-        for (
-            Iterator<Object> i =
-                new BreadthFirstIterator<Object, DefaultEdge>(g);
-            i.hasNext();)
-        {
-            i.next();
-        }
+		for (Iterator<Object> i = new BreadthFirstIterator<Object, DefaultEdge>(
+				g); i.hasNext();) {
+			i.next();
+		}
 
-        reportPerformanceFor("breadth traversal", time);
+		reportPerformanceFor("breadth traversal", time);
 
-        time = System.currentTimeMillis();
+		time = System.currentTimeMillis();
 
-        for (
-            Iterator<Object> i = new DepthFirstIterator<Object, DefaultEdge>(g);
-            i.hasNext();)
-        {
-            i.next();
-        }
+		for (Iterator<Object> i = new DepthFirstIterator<Object, DefaultEdge>(g); i
+				.hasNext();) {
+			i.next();
+		}
 
-        reportPerformanceFor("depth traversal", time);
+		reportPerformanceFor("depth traversal", time);
 
-        System.out.println(
-            "\n"
-            + "Paused: graph is still in memory (to check mem consumption).");
-        System.out.print("press enter to free memory and finish...");
+		System.out
+				.println("\n"
+						+ "Paused: graph is still in memory (to check mem consumption).");
+		System.out.print("press enter to free memory and finish...");
 
-        try {
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+		try {
+			System.in.read();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-        System.out.println("done.");
-    }
+		System.out.println("done.");
+	}
 
-    private static void reportPerformanceFor(String msg, long refTime)
-    {
-        double time = (System.currentTimeMillis() - refTime) / 1000.0;
-        double mem = usedMemory()
-            / (1024.0 * 1024.0);
-        mem = Math.round(mem * 100) / 100.0;
-        System.out.println(msg + " (" + time + " sec, " + mem + "MB)");
-    }
+	private static void reportPerformanceFor(String msg, long refTime) {
+		double time = (System.currentTimeMillis() - refTime) / 1000.0;
+		double mem = usedMemory() / (1024.0 * 1024.0);
+		mem = Math.round(mem * 100) / 100.0;
+		System.out.println(msg + " (" + time + " sec, " + mem + "MB)");
+	}
 
-    private static long usedMemory()
-    {
-        Runtime rt = Runtime.getRuntime();
+	private static long usedMemory() {
+		Runtime rt = Runtime.getRuntime();
 
-        return rt.totalMemory() - rt.freeMemory();
-    }
+		return rt.totalMemory() - rt.freeMemory();
+	}
 }
 
 // End PerformanceDemo.java
