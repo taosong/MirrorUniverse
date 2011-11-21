@@ -1,6 +1,5 @@
 package mirroruniverse.gxplayer;
 
-import graph.test.PointPair;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,25 +47,25 @@ public class GxPlayer implements Player {
 		//so far, the path is found
 		//but the getSource() function is protected
 		
-//		PointPair source =(PointPair) path.get(round-1).getSource();
-//		PointPair target = (PointPair) path.get(round-1).getTarget();
-//		int dx = target.getLeftx()-source.getLeftx();
-//		dx = dx==0?target.getRightx()-source.getRightx():dx;
-//		if(dx==1){
-//			return D;
-//		}
-//		if(dx==-1){
-//			return U;
-//		}
-//		int dy = target.getLefty()-source.getLefty();
-//		dy = dy==0?target.getRighty()-source.getRighty():dx;
-//		
-//		if(dy==1){
-//			return R;
-//		}
-//		if(dy==-1){
-//			return L;
-//		}
+		PointPair source =path.get(round-1).getFrom();
+		PointPair target = path.get(round-1).getTo();
+		int dx = target.getLeftx()-source.getLeftx();
+		dx = dx==0?target.getRightx()-source.getRightx():dx;
+		if(dx==1){
+			return D;
+		}
+		if(dx==-1){
+			return U;
+		}
+		int dy = target.getLefty()-source.getLefty();
+		dy = dy==0?target.getRighty()-source.getRighty():dx;
+		
+		if(dy==1){
+			return R;
+		}
+		if(dy==-1){
+			return L;
+		}
 //
 		return -1;
 	}

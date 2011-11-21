@@ -41,6 +41,8 @@ package graph.test;
 
 import java.net.*;
 
+import mirroruniverse.gxplayer.PointPair;
+
 import org.jgrapht.*;
 import org.jgrapht.graph.*;
 
