@@ -62,4 +62,13 @@ public class PointPair {
 		PointPair pp = new PointPair(1, 2, 3, 4);
 		System.out.println(pp);
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof PointPair)) return false;
+		PointPair p = (PointPair) obj;
+		return p.leftx == leftx && p.lefty == lefty && p.rightx == rightx && p.righty == righty;
+	}
+	
+	
 }
