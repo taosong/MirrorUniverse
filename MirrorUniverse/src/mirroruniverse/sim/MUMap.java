@@ -168,7 +168,7 @@ public class MUMap
 			}
 			for ( int i = 0; i < intXLength; i ++ )
 			{
-				System.out.println( astrMapRow[ i ] );
+				//System.out.println( astrMapRow[ i ] );
 				int intMapGrid = Integer.parseInt( astrMapRow[ i ] );
 				if ( intMapGrid >= 0 && intMapGrid <= 1 )
 				{
