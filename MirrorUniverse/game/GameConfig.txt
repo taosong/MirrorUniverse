@@ -1,2 +1,2 @@
-3, 3, 2, -1, maps/test3-2.txt, 3
-3, 3, 2, -1, maps/test3-3.txt, 3
+5, 5, 5, -1, maps/testMap.txt, 3
+4, 4, 7, -1, maps/test3-2.txt, 3

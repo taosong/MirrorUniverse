@@ -148,8 +148,8 @@ public class G3Player implements Player {
 							System.out.println(pc[lx][ly][rx][ry] + "\t("
 									+ aintViewL[lx][ly] + ","
 									+ aintViewR[rx][ry] + ")");
-
-						this.graph.addVertex(pc[lx][ly][rx][ry]);
+						
+							this.graph.addVertex(pc[lx][ly][rx][ry]);
 						if (aintViewL[lx][ly] == 2 && aintViewR[rx][ry] == 2) {
 							this.exit = pc[lx][ly][rx][ry];
 							System.out.println("=====exit========" + this.exit);
@@ -185,7 +185,8 @@ public class G3Player implements Player {
 										ry, deltaX, deltaY, aintViewL,
 										aintViewR);
 								if (!newState.equals(pc[lx][ly][rx][ry])) {
-									graph.addEdge(pc[lx][ly][rx][ry],
+									if(aintViewL[lx][ly]!=2&&aintViewR[rx][ry]!=2)
+										graph.addEdge(pc[lx][ly][rx][ry],
 											pc[newState.getLeftx()][newState
 													.getLefty()][newState
 													.getRightx()][newState
