@@ -20,7 +20,7 @@ package graph.test;
 
 import java.util.List;
 
-import mirroruniverse.gxplayer.PointPair;
+import mirroruniverse.g3player.PointPair;
 
 import org.jgrapht.alg.*;
 import org.jgrapht.*;

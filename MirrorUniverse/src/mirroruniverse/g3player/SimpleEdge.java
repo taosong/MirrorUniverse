@@ -1,4 +1,4 @@
-package mirroruniverse.gxplayer;
+package mirroruniverse.g3player;
 
 import org.jgrapht.graph.DefaultEdge;
 

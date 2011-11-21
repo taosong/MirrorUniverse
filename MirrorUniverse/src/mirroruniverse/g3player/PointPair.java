@@ -1,7 +1,7 @@
 /**
  * 
  */
-package mirroruniverse.gxplayer;
+package mirroruniverse.g3player;
 
 /**
  * NOTE: short int is used since -32,768 to 32,767 will be enough

@@ -1,4 +1,4 @@
-package mirroruniverse.gxplayer;
+package mirroruniverse.g3player;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import org.jgrapht.graph.*;
 
 import mirroruniverse.sim.Player;
 
-public class GxPlayer implements Player {
+public class G3Player implements Player {
 
 	public static final int U = 3, D = 7, R = 1, L = 5, LU = 4, RU = 2, LD = 6,
 			RD = 8;
@@ -28,7 +28,7 @@ public class GxPlayer implements Player {
 	private PointPair[][][][] bfsPath;
 	List<SimpleEdge> path;
 
-	public GxPlayer() {
+	public G3Player() {
 		graph = new DefaultDirectedGraph<PointPair, SimpleEdge>(
 				SimpleEdge.class);
 		round = 0;
