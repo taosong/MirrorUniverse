@@ -1,1 +1,1 @@
-mirroruniverse.gxplayer.GxPlayer
+mirroruniverse.g3player.G3Player
