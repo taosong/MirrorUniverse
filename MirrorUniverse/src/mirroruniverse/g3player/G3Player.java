@@ -16,7 +16,7 @@ public class G3Player implements Player {
 			RD = 8;
 	public static final boolean printGraph = false;
 
-	private DirectedGraph<PointPair, SimpleEdge> graph;
+	private DefaultDirectedWeightedGraph<PointPair, SimpleEdge> graph;
 	private int round;
 
 	private PointPair exit;
@@ -27,9 +27,10 @@ public class G3Player implements Player {
 	private PointPair[][][][] pc;
 	private PointPair[][][][] bfsPath;
 	List<SimpleEdge> path;
+	SimpleEdge e;
 
 	public G3Player() {
-		graph = new DefaultDirectedGraph<PointPair, SimpleEdge>(
+		graph = new DefaultDirectedWeightedGraph<PointPair, SimpleEdge>(
 				SimpleEdge.class);
 		round = 0;
 	}
@@ -37,11 +38,11 @@ public class G3Player implements Player {
 	@Override
 	public int lookAndMove(int[][] aintViewL, int[][] aintViewR) {
 		round++;
-		if (round>=1) {
+		if (round==1) {
 			pc = new PointPair[aintViewL.length][aintViewL[0].length][aintViewR.length][aintViewR[0].length];
 			bfsPath = new PointPair[aintViewL.length][aintViewL[0].length][aintViewR.length][aintViewR[0].length];
 			buildGraph(aintViewL, aintViewR);
-			// System.out.println(graph);
+//			System.out.println(graph);
 		}
 
 		path = DijkstraShortestPath.findPathBetween(graph, start, exit);// just
@@ -54,9 +55,9 @@ public class G3Player implements Player {
 		// so far, the path is found
 		// but the getSource() function is protected
 
-		PointPair source = path.get(0).getFrom();
+		PointPair source = path.get(round-1).getFrom();
 		System.out.println("source "+source);
-		PointPair target = path.get(0).getTo();
+		PointPair target = path.get(round-1).getTo();
 		System.out.println("target "+target);
 		int dx = target.getLeftx() - source.getLeftx();
 		dx = dx == 0 ? target.getRightx() - source.getRightx() : dx;
@@ -143,26 +144,29 @@ public class G3Player implements Player {
 			for (ly = 0; ly < aintViewL[0].length; ly++) {
 				for (rx = 0; rx < aintViewR.length; rx++) {
 					for (ry = 0; ry < aintViewR[0].length; ry++) {
-						pc[lx][ly][rx][ry] = new PointPair(lx, ly, rx, ry);
-						if (printGraph)
-							System.out.println(pc[lx][ly][rx][ry] + "\t("
-									+ aintViewL[lx][ly] + ","
-									+ aintViewR[rx][ry] + ")");
+						if(aintViewL[lx][ly]!=1&&aintViewR[rx][ry]!=1){
+							pc[lx][ly][rx][ry] = new PointPair(lx, ly, rx, ry);
+						
+							if (printGraph)
+								System.out.println(pc[lx][ly][rx][ry] + "\t("
+										+ aintViewL[lx][ly] + ","
+										+ aintViewR[rx][ry] + ")");
 						
 							this.graph.addVertex(pc[lx][ly][rx][ry]);
+						}
 						if (aintViewL[lx][ly] == 2 && aintViewR[rx][ry] == 2) {
 							this.exit = pc[lx][ly][rx][ry];
 							System.out.println("=====exit========" + this.exit);
 						}
-						if (aintViewL[lx][ly] == 3) {
-							System.out.println("Found Left Staring Position!!");
-							startLeft = new Point(lx, ly);
-						}
-						if (aintViewR[rx][ry] == 3) {
-							System.out
-									.println("Found Right Staring Position!!");
-							startRight = new Point(rx, ry);
-						}
+//						if (aintViewL[lx][ly] == 3) {
+//							System.out.println("Found Left Staring Position!!");
+//							startLeft = new Point(lx, ly);
+//						}
+//						if (aintViewR[rx][ry] == 3) {
+//							System.out
+//									.println("Found Right Staring Position!!");
+//							startRight = new Point(rx, ry);
+//						}
 					}
 				}
 			}
@@ -186,11 +190,32 @@ public class G3Player implements Player {
 										aintViewR);
 								if (!newState.equals(pc[lx][ly][rx][ry])) {
 									if(aintViewL[lx][ly]!=2&&aintViewR[rx][ry]!=2)
-										graph.addEdge(pc[lx][ly][rx][ry],
+									{
+										    e=graph.addEdge(pc[lx][ly][rx][ry],
 											pc[newState.getLeftx()][newState
 													.getLefty()][newState
 													.getRightx()][newState
 													.getRighty()]);
+										    graph.setEdgeWeight(e, 1);
+									}
+									else{
+										if(aintViewL[lx][ly]==2){
+											newState.setLeftx(lx);
+											newState.setLefty(ly);
+										}
+										if(aintViewR[rx][ry]==2){
+											newState.setRightx(rx);
+											newState.setRighty(ry);
+										}
+										if(!newState.equals(pc[lx][ly][rx][ry])){
+										    e=graph.addEdge(pc[lx][ly][rx][ry],
+											pc[newState.getLeftx()][newState
+													.getLefty()][newState
+													.getRightx()][newState
+													.getRighty()]);
+										    graph.setEdgeWeight(e, 1000);
+										}
+									}
 								}
 							}
 						}

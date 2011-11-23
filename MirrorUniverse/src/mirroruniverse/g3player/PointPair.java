@@ -24,32 +24,32 @@ public class PointPair {
 		return leftx;
 	}
 
-	public void setLeftx(short leftx) {
-		this.leftx = leftx;
+	public void setLeftx(int lx) {
+		this.leftx = (short)lx;
 	}
 
 	public short getLefty() {
 		return lefty;
 	}
 
-	public void setLefty(short lefty) {
-		this.lefty = lefty;
+	public void setLefty(int lefty) {
+		this.lefty = (short) lefty;
 	}
 
 	public short getRightx() {
 		return rightx;
 	}
 
-	public void setRightx(short rightx) {
-		this.rightx = rightx;
+	public void setRightx(int rightx) {
+		this.rightx = (short) rightx;
 	}
 
 	public short getRighty() {
 		return righty;
 	}
 
-	public void setRighty(short righty) {
-		this.righty = righty;
+	public void setRighty(int righty) {
+		this.righty = (short) righty;
 	}
 	
 	@Override

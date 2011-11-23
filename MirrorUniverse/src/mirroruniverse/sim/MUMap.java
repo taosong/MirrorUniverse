@@ -18,8 +18,8 @@ public class MUMap
 	private int intPositionY = -1;
 	private int intSightRadius;
 	private int intRound = 0;
-	private int intExitX = -1;
-	private int intExitY = -1;
+	private int intExitX = 2;
+	private int intExitY = 2;
 	private boolean blnMapOver = false;
 	private long lngMapSeed;
 	private long lngInitialSeed;
@@ -122,7 +122,7 @@ public class MUMap
 				intExitX = rdmGen.nextInt( intXLength );
 				intExitY = rdmGen.nextInt( intYLength );
 			}
-			aintMap[ intExitY ][ intExitX ] = -1;
+			aintMap[ intExitY ][ intExitX ] = 2;
 			while ( !inMap( intPositionX, intPositionY ) || aintMap[ intPositionY ][intPositionX ] != 0 )
 			{
 				intPositionX = rdmGen.nextInt( intXLength );
