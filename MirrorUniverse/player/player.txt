@@ -1,1 +1,2 @@
-mirroruniverse.g3player.G3Player
+//mirroruniverse.g3player.G3Player
+mirroruniverse.aiplayer.AiPlayer
