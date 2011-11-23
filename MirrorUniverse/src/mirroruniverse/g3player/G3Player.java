@@ -15,6 +15,7 @@ public class G3Player implements Player {
 	public static final int U = 3, D = 7, R = 1, L = 5, LU = 4, RU = 2, LD = 6,
 			RD = 8;
 	public static final boolean printGraph = false;
+	public static final int SENTINEL = -1;
 
 	private DefaultDirectedWeightedGraph<PointPair, SimpleEdge> graph;
 	private int round;
@@ -25,6 +26,9 @@ public class G3Player implements Player {
 	private Point startLeft = null;
 	private Point startRight = null;
 	private PointPair[][][][] pc;
+	
+	private static final Point PSENTINEL = new Point(-1,-1);
+	private static final PointPair UNEXPLORED = new PointPair(-1,-1,-1,-1);
 	private PointPair[][][][] bfsPath;
 	List<SimpleEdge> path;
 	SimpleEdge e;
@@ -98,9 +102,9 @@ public class G3Player implements Player {
 
 	private int incr(int len, int x, int deltaX) {
 		if (deltaX > 0) {
-			return x + deltaX < len ? x + deltaX : x;
+			return x + deltaX < len ? x + deltaX : SENTINEL;
 		} else {
-			return x + deltaX > 0 ? x + deltaX : x;
+			return x + deltaX > 0 ? x + deltaX : SENTINEL;
 		}
 
 	}
@@ -108,6 +112,9 @@ public class G3Player implements Player {
 	private Point getNextPoint(int[][] arr, int x, int y, int deltaX, int deltaY) {
 		int xprime = incr(arr.length, x, deltaX);
 		int yprime = incr(arr[0].length, y, deltaY);
+		if(xprime == SENTINEL || yprime == SENTINEL){
+			return PSENTINEL;
+		}
 		return (arr[xprime][yprime] == 1) ? new Point(x, y) : new Point(xprime,
 				yprime);
 	}
@@ -116,6 +123,10 @@ public class G3Player implements Player {
 			int deltaY, int[][] left, int[][] right) {
 		Point leftPoint = getNextPoint(left, lx, ly, deltaX, deltaY);
 		Point rightPoint = getNextPoint(right, rx, ry, deltaX, deltaY);
+		
+		if(leftPoint == PSENTINEL || rightPoint == PSENTINEL){
+			return UNEXPLORED;
+		}
 		return new PointPair(leftPoint.getX(), leftPoint.getY(),
 				rightPoint.getX(), rightPoint.getY());
 	}
@@ -158,15 +169,6 @@ public class G3Player implements Player {
 							this.exit = pc[lx][ly][rx][ry];
 							System.out.println("=====exit========" + this.exit);
 						}
-//						if (aintViewL[lx][ly] == 3) {
-//							System.out.println("Found Left Staring Position!!");
-//							startLeft = new Point(lx, ly);
-//						}
-//						if (aintViewR[rx][ry] == 3) {
-//							System.out
-//									.println("Found Right Staring Position!!");
-//							startRight = new Point(rx, ry);
-//						}
 					}
 				}
 			}
@@ -220,49 +222,6 @@ public class G3Player implements Player {
 							}
 						}
 
-						/*
-						 * // Go Right if (lx + 1 < aintViewL.length &&
-						 * aintViewL[lx + 1][ly] != 1) { if (rx + 1 <
-						 * aintViewR.length && aintViewR[rx + 1][ry] != 1)
-						 * this.graph.addEdge(pc[lx][ly][rx][ry], pc[lx +
-						 * 1][ly][rx + 1][ry]); else
-						 * this.graph.addEdge(pc[lx][ly][rx][ry], pc[lx +
-						 * 1][ly][rx][ry]); } else { if (rx + 1 <
-						 * aintViewR.length && aintViewR[rx + 1][ry] != 1)
-						 * this.graph.addEdge(pc[lx][ly][rx][ry], pc[lx][ly][rx
-						 * + 1][ry]); else ;// can't move, stay put }
-						 * 
-						 * // Go Left if (lx - 1 >= 0 && aintViewL[lx - 1][ly]
-						 * != 1) { if (rx - 1 >= 0 && aintViewR[rx - 1][ry] !=
-						 * 1) this.graph.addEdge( pc[lx][ly][rx][ry],
-						 * pc[lx-1][ly][rx-1][ry]); else this.graph.addEdge(
-						 * pc[lx][ly][rx][ry], pc[lx-1][ly][rx][ry]); } else {
-						 * if (rx - 1 >= 0 && aintViewR[rx - 1][ry] != 1)
-						 * this.graph.addEdge( pc[lx][ly][rx][ry],
-						 * pc[lx][ly][rx-1][ry]); else ;// can't move, stay put
-						 * }
-						 * 
-						 * // Go down if (ly - 1 >= 0 && aintViewL[lx][ly - 1]
-						 * != 1) { if (ry - 1 >= 0 && aintViewR[rx][ry - 1] !=
-						 * 1) this.graph.addEdge( pc[lx][ly][rx][ry],
-						 * pc[lx][ly-1][rx][ry-1]); else this.graph.addEdge(
-						 * pc[lx][ly][rx][ry], pc[lx][ly-1][rx][ry]); } else {
-						 * if (ry - 1 >= 0 && aintViewR[rx][ry - 1] != 1)
-						 * this.graph.addEdge( pc[lx][ly][rx][ry],
-						 * pc[lx][ly][rx][ry-1]); else ;// can't move, stay put
-						 * }
-						 * 
-						 * // Go Up if (ly + 1 < aintViewL[0].length &&
-						 * aintViewL[lx][ly + 1] != 1) { if (ry + 1 <
-						 * aintViewR[0].length && aintViewR[rx][ry + 1] != 1)
-						 * this.graph.addEdge( pc[lx][ly][rx][ry],
-						 * pc[lx][ly+1][rx][ry+1]); else this.graph.addEdge(
-						 * pc[lx][ly][rx][ry], pc[lx][ly+1][rx][ry]); } else {
-						 * if (ry + 1 < aintViewR[0].length && aintViewR[rx][ry
-						 * + 1] != 1) this.graph.addEdge( pc[lx][ly][rx][ry],
-						 * pc[lx][ly][rx][ry+1]); else ;// can't move, stay put
-						 * }
-						 */
 
 					}
 				}
