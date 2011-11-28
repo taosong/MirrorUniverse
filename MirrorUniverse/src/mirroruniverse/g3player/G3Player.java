@@ -3,6 +3,7 @@ package mirroruniverse.g3player;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.jgrapht.alg.*;
 import org.jgrapht.*;
@@ -27,6 +28,7 @@ public class G3Player implements Player {
 	private PointPair[][][][] pc;
 	private PointPair offset;
 	
+	Random rand = new Random(); 
 	List<SimpleEdge> path;
 	SimpleEdge e;
 	int maxlength = 40;
@@ -36,17 +38,25 @@ public class G3Player implements Player {
 				SimpleEdge.class);
 		round = 0;
 		pc = new PointPair[maxlength][maxlength][maxlength][maxlength];
+		offset = new PointPair(0, 0, 0, 0);
 	}
 
 	@Override
 	public int lookAndMove(int[][] aintViewL, int[][] aintViewR) {
 		round++;
-		if (round==1) {
+		if (true) {
 			buildGraph(aintViewL, aintViewR);
 		}
-		else
-			updateGraph(aintViewL, aintViewR);
 
+		if(exit==null){
+			return rand.nextInt(8)+1;
+		}
+		start.updateLeftx(offset.getLeftx());
+		start.updateLefty(offset.getLefty());
+		start.updateRightx(offset.getRightx());
+		start.updateRighty(offset.getRighty());
+		System.out.println("=====start========" + this.start);
+		
 		path = DijkstraShortestPath.findPathBetween(graph, start, exit);
 		System.out.println("=====path==========" + path);
 		// so far, the path is found
@@ -60,6 +70,8 @@ public class G3Player implements Player {
 		dx = dx == 0 ? target.getRightx() - source.getRightx() : dx;
 		int dy = target.getLefty() - source.getLefty();
 		dy = dy == 0 ? target.getRighty() - source.getRighty() : dy;
+		offset.update(target,source);
+		
 		if (dx == 1 && dy == 1) {
 			System.out.println("RD");
 			return RD;
@@ -129,6 +141,7 @@ public class G3Player implements Player {
 		int lx, ly, rx, ry;
 		// add vertex
 		// flag accepting state if one exists
+
 		if (printGraph) {
 			System.out.println("Left View:");
 			for (int i = 0; i < aintViewL.length; i++) {
@@ -149,26 +162,32 @@ public class G3Player implements Player {
 			for (ly = 0; ly < aintViewL[0].length; ly++) {
 				for (rx = 0; rx < aintViewR.length; rx++) {
 					for (ry = 0; ry < aintViewR[0].length; ry++) {
+						int nlx = lx + offset.getLeftx();
+						int nly = ly + offset.getLefty();
+						int nrx = rx + offset.getRightx();
+						int nry = ry + offset.getRighty();
 						if(aintViewL[lx][ly]!=1&&aintViewR[rx][ry]!=1){
-							pc[lx][ly][rx][ry] = new PointPair(lx, ly, rx, ry);
+							pc[nlx][nly][nrx][nry] = new PointPair(nlx, nly, nrx, nry);
 						
 							if (printGraph)
 								System.out.println(pc[lx][ly][rx][ry] + "\t("
 										+ aintViewL[lx][ly] + ","
 										+ aintViewR[rx][ry] + ")");
 						
-							this.graph.addVertex(pc[lx][ly][rx][ry]);
+							this.graph.addVertex(pc[nlx][nly][nrx][nry]);
 						}
 						if (aintViewL[lx][ly] == 2 && aintViewR[rx][ry] == 2) {
-							this.exit = pc[lx][ly][rx][ry];
+							this.exit = pc[nlx][nly][nrx][nry];
 							System.out.println("=====exit========" + this.exit);
 						}
 					}
 				}
 			}
 		}
-		this.start = pc[aintViewL.length / 2][aintViewL[0].length / 2][aintViewR.length / 2][aintViewR[0].length / 2];
-		System.out.println("=====start========" + this.start);
+		if(round==1){
+			this.start = pc[aintViewL.length / 2][aintViewL[0].length / 2][aintViewR.length / 2][aintViewR[0].length / 2];
+		}
+
 
 		// add edges
 		for (lx = 0; lx < aintViewL.length; lx++) {
@@ -176,18 +195,25 @@ public class G3Player implements Player {
 				for (rx = 0; rx < aintViewR.length; rx++) {
 					for (ry = 0; ry < aintViewR[0].length; ry++) {
 
-						if (aintViewL[lx][ly] == 1 || aintViewR[rx][ry] == 1)
+						if (aintViewL[lx][ly] == 1 || aintViewR[rx][ry] == 1 || pc[lx][ly][rx][ry] != null)
 							continue;
-
+						int nlx = lx + offset.getLeftx();
+						int nly = ly + offset.getLefty();
+						int nrx = rx + offset.getRightx();
+						int nry = ry + offset.getRighty();
 						for (int deltaX = -1; deltaX < 2; deltaX++) {
 							for (int deltaY = -1; deltaY < 2; deltaY++) {
 								PointPair newState = getNextState(lx, ly, rx,
 										ry, deltaX, deltaY, aintViewL,
 										aintViewR);
-								if (!newState.equals(pc[lx][ly][rx][ry])) {
+								newState.updateLeftx(offset.getLeftx());
+								newState.updateLefty(offset.getLefty());
+								newState.updateRightx(offset.getRightx());
+								newState.updateRighty(offset.getRighty());
+								if (!newState.equals(pc[nlx][nly][nrx][nry])) {
 									if(aintViewL[lx][ly]!=2&&aintViewR[rx][ry]!=2)
 									{
-										    e = graph.addEdge(pc[lx][ly][rx][ry],
+										    e = graph.addEdge(pc[nlx][nly][nrx][nry],
 											pc[newState.getLeftx()][newState
 													.getLefty()][newState
 													.getRightx()][newState
@@ -196,15 +222,15 @@ public class G3Player implements Player {
 									}
 									else{
 										if(aintViewL[lx][ly]==2){
-											newState.setLeftx(lx);
-											newState.setLefty(ly);
+											newState.setLeftx(nlx);
+											newState.setLefty(nly);
 										}
 										if(aintViewR[rx][ry]==2){
-											newState.setRightx(rx);
-											newState.setRighty(ry);
+											newState.setRightx(nrx);
+											newState.setRighty(nry);
 										}
-										if(!newState.equals(pc[lx][ly][rx][ry])){
-										    e=graph.addEdge(pc[lx][ly][rx][ry],
+										if(!newState.equals(pc[nlx][nly][nrx][nry])){
+										    e=graph.addEdge(pc[nlx][nly][nrx][nry],
 											pc[newState.getLeftx()][newState
 													.getLefty()][newState
 													.getRightx()][newState
