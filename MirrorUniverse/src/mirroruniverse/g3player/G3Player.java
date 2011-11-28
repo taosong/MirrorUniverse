@@ -15,7 +15,6 @@ public class G3Player implements Player {
 	public static final int U = 3, D = 7, R = 1, L = 5, LU = 4, RU = 2, LD = 6,
 			RD = 8;
 	public static final boolean printGraph = false;
-	public static final int SENTINEL = -1;
 
 	private DefaultDirectedWeightedGraph<PointPair, SimpleEdge> graph;
 	private int round;
@@ -27,9 +26,6 @@ public class G3Player implements Player {
 	private Point startRight = null;
 	private PointPair[][][][] pc;
 	
-	private static final Point PSENTINEL = new Point(-1,-1);
-	private static final PointPair UNEXPLORED = new PointPair(-1,-1,-1,-1);
-	private PointPair[][][][] bfsPath;
 	List<SimpleEdge> path;
 	SimpleEdge e;
 
@@ -102,9 +98,9 @@ public class G3Player implements Player {
 
 	private int incr(int len, int x, int deltaX) {
 		if (deltaX > 0) {
-			return x + deltaX < len ? x + deltaX : SENTINEL;
+			return x + deltaX < len ? x + deltaX : x;
 		} else {
-			return x + deltaX > 0 ? x + deltaX : SENTINEL;
+			return x + deltaX > 0 ? x + deltaX : x;
 		}
 
 	}
@@ -112,9 +108,6 @@ public class G3Player implements Player {
 	private Point getNextPoint(int[][] arr, int x, int y, int deltaX, int deltaY) {
 		int xprime = incr(arr.length, x, deltaX);
 		int yprime = incr(arr[0].length, y, deltaY);
-		if(xprime == SENTINEL || yprime == SENTINEL){
-			return PSENTINEL;
-		}
 		return (arr[xprime][yprime] == 1) ? new Point(x, y) : new Point(xprime,
 				yprime);
 	}
@@ -124,9 +117,6 @@ public class G3Player implements Player {
 		Point leftPoint = getNextPoint(left, lx, ly, deltaX, deltaY);
 		Point rightPoint = getNextPoint(right, rx, ry, deltaX, deltaY);
 		
-		if(leftPoint == PSENTINEL || rightPoint == PSENTINEL){
-			return UNEXPLORED;
-		}
 		return new PointPair(leftPoint.getX(), leftPoint.getY(),
 				rightPoint.getX(), rightPoint.getY());
 	}
@@ -193,12 +183,12 @@ public class G3Player implements Player {
 								if (!newState.equals(pc[lx][ly][rx][ry])) {
 									if(aintViewL[lx][ly]!=2&&aintViewR[rx][ry]!=2)
 									{
-										    e=graph.addEdge(pc[lx][ly][rx][ry],
+										    e = graph.addEdge(pc[lx][ly][rx][ry],
 											pc[newState.getLeftx()][newState
 													.getLefty()][newState
 													.getRightx()][newState
 													.getRighty()]);
-										    graph.setEdgeWeight(e, 1);
+										    if(e != null) graph.setEdgeWeight(e, 1);
 									}
 									else{
 										if(aintViewL[lx][ly]==2){
@@ -215,7 +205,7 @@ public class G3Player implements Player {
 													.getLefty()][newState
 													.getRightx()][newState
 													.getRighty()]);
-										    graph.setEdgeWeight(e, 1000);
+										    if(e !=  null) graph.setEdgeWeight(e, 1000);
 										}
 									}
 								}
