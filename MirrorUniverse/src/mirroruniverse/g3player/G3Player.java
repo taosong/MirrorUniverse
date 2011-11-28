@@ -130,6 +130,8 @@ public class G3Player implements Player {
 		return new PointPair(leftPoint.getX(), leftPoint.getY(),
 				rightPoint.getX(), rightPoint.getY());
 	}
+	
+	
 
 	private void buildGraph(int[][] aintViewL, int[][] aintViewR) {
 		int lx, ly, rx, ry;
