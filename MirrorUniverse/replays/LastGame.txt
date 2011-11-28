@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 40, 40, 3, -1, maps/LeftBig.txt, 3
 40, 40, 3, -1, maps/RightBig.txt, 5
@@ -9,3 +10,7 @@
 5, 6, 6, 6, 5, 5, 3
 0, 7
 >>>>>>> branch 'master' of git@github.com:taosong/MirrorUniverse.git
+=======
+40, 40, 40, 5, 0.1, 5
+40, 40, 40, 5, 0.1, 5
+>>>>>>> Stashed changes

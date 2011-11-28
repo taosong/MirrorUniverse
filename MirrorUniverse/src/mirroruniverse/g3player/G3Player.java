@@ -44,7 +44,7 @@ public class G3Player implements Player {
 		round++;
 		if (round==1) {
 			pc = new PointPair[aintViewL.length][aintViewL[0].length][aintViewR.length][aintViewR[0].length];
-			bfsPath = new PointPair[aintViewL.length][aintViewL[0].length][aintViewR.length][aintViewR[0].length];
+			//bfsPath = new PointPair[aintViewL.length][aintViewL[0].length][aintViewR.length][aintViewR[0].length];
 			buildGraph(aintViewL, aintViewR);
 //			System.out.println(graph);
 		}
