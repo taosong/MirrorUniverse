@@ -26,35 +26,32 @@ public class G3Player implements Player {
 	private Point startLeft = null;
 	private Point startRight = null;
 	private PointPair[][][][] pc;
+	private PointPair offset;
 	
 	private static final Point PSENTINEL = new Point(-1,-1);
 	private static final PointPair UNEXPLORED = new PointPair(-1,-1,-1,-1);
 	private PointPair[][][][] bfsPath;
 	List<SimpleEdge> path;
 	SimpleEdge e;
+	int maxlength = 40;
 
 	public G3Player() {
 		graph = new DefaultDirectedWeightedGraph<PointPair, SimpleEdge>(
 				SimpleEdge.class);
 		round = 0;
+		pc = new PointPair[maxlength][maxlength][maxlength][maxlength];
 	}
 
 	@Override
 	public int lookAndMove(int[][] aintViewL, int[][] aintViewR) {
 		round++;
 		if (round==1) {
-			pc = new PointPair[aintViewL.length][aintViewL[0].length][aintViewR.length][aintViewR[0].length];
-			//bfsPath = new PointPair[aintViewL.length][aintViewL[0].length][aintViewR.length][aintViewR[0].length];
 			buildGraph(aintViewL, aintViewR);
-//			System.out.println(graph);
 		}
+		else
+			updateGraph(aintViewL, aintViewR);
 
-		path = DijkstraShortestPath.findPathBetween(graph, start, exit);// just
-																		// for
-																		// demo,
-																		// not
-																		// efficient
-
+		path = DijkstraShortestPath.findPathBetween(graph, start, exit);
 		System.out.println("=====path==========" + path);
 		// so far, the path is found
 		// but the getSource() function is protected
@@ -98,6 +95,11 @@ public class G3Player implements Player {
 		}
 		//
 		return -1;
+	}
+
+	private void updateGraph(int[][] aintViewL, int[][] aintViewR) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	private int incr(int len, int x, int deltaX) {
