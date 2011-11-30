@@ -8,10 +8,13 @@ public class NewPlayer implements Player {
 			RD = 8;
 	public static final boolean printGraph = false;
 	public static final int maxSize = 20;
+	public static final int unknown = -1, exit = 2, path = 0, obstacle = 1;
+	
 	
 	protected int[][] leftMap;
 	protected int[][] rightMap;
 	protected int leftx, lefty, rightx,righty;
+	protected int leftViewSize,rightViewSize;
 	
 	protected boolean leftExitFound = false, rightExitFound =false;
 	/*
@@ -21,10 +24,17 @@ public class NewPlayer implements Player {
 	protected ExploreStrategy exploreStrategy;
 	protected ExitStrategy exitStrategy;
 	protected int lastAction;
+	protected int round = 0;
+	protected int dx,dy;// this should be updated by Strategy class when instruction is given
 	
 	public NewPlayer(){
-		leftMap = new int[maxSize*2][maxSize*2];
-		rightMap = new int[maxSize*2][maxSize*2];
+		leftMap = new int[maxSize][maxSize];
+		rightMap = new int[maxSize][maxSize];
+		for(int i=0;i<maxSize;i++){
+			for(int j=0;j<maxSize;j++){
+				leftMap[i][j] = rightMap[i][j] = unknown;
+			}
+		}
 		controllerStrategy = new ControllerStrategy();
 		exploreStrategy = new ExploreStrategy();
 		exitStrategy = new ExitStrategy();
@@ -33,6 +43,11 @@ public class NewPlayer implements Player {
 	
 	@Override
 	public int lookAndMove(int[][] aintViewL, int[][] aintViewR) {
+		round ++;
+		if(round==1){
+			this.leftViewSize = aintViewL.length;
+			this.rightViewSize = aintViewR.length;
+		}
 
 		this.updateMap(aintViewL,aintViewR);
 		if(controllerStrategy.keepExplore(this) == true){
@@ -48,7 +63,7 @@ public class NewPlayer implements Player {
 
 
 	private void updateMap(int[][] aintViewL, int[][] aintViewR) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
