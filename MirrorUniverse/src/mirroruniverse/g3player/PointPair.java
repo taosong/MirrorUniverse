@@ -27,6 +27,10 @@ public class PointPair {
 	public void setLeftx(int lx) {
 		this.leftx = (short)lx;
 	}
+	
+	public void updateLeftx(int lx) {
+		this.leftx += (short)lx;
+	}
 
 	public short getLefty() {
 		return lefty;
@@ -34,6 +38,10 @@ public class PointPair {
 
 	public void setLefty(int lefty) {
 		this.lefty = (short) lefty;
+	}
+	
+	public void updateLefty(int lefty) {
+		this.lefty += (short) lefty;
 	}
 
 	public short getRightx() {
@@ -43,6 +51,10 @@ public class PointPair {
 	public void setRightx(int rightx) {
 		this.rightx = (short) rightx;
 	}
+	
+	public void updateRightx(int rightx) {
+		this.rightx += (short) rightx;
+	}
 
 	public short getRighty() {
 		return righty;
@@ -50,6 +62,10 @@ public class PointPair {
 
 	public void setRighty(int righty) {
 		this.righty = (short) righty;
+	}
+	
+	public void updateRighty(int righty) {
+		this.righty += (short) righty;
 	}
 	
 	@Override
@@ -68,6 +84,13 @@ public class PointPair {
 		if(!(obj instanceof PointPair)) return false;
 		PointPair p = (PointPair) obj;
 		return p.leftx == leftx && p.lefty == lefty && p.rightx == rightx && p.righty == righty;
+	}
+
+	public void update(PointPair target, PointPair source) {
+		updateLeftx(target.getLeftx()-source.getLeftx());
+		updateLefty(target.getLefty()-source.getLefty());
+		updateRightx(target.getRightx()-source.getRightx());
+		updateRighty(target.getRighty()-source.getRighty());
 	}
 	
 	
