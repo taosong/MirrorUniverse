@@ -7,7 +7,7 @@ import mirroruniverse.sim.Player;
 
 public class StupidPlayer implements Player
 {
-	boolean debug =false;
+	boolean debug =true;
 	int round=0;
 
 
@@ -104,7 +104,7 @@ public class StupidPlayer implements Player
 	boolean rightExited=false;
 
 
-	//public int[][][][] state;
+	//public int[][][][] state1= new int[maxVirtualMapsize][maxVirtualMapsize][maxVirtualMapsize][maxVirtualMapsize];
 	//int[][] miniState;
 	/*
 	 * State signifies a set of reachable set of position pair reachable
@@ -139,8 +139,8 @@ public class StupidPlayer implements Player
 	public int lookAndMove( int[][] aintViewL, int[][] aintViewR )
 	{
 		round++;
-		if(round>300 )
-			debug=false;
+		//if(round>300 )
+			//debug=false;
 		//System.out.println(java.lang.Runtime.getRuntime().maxMemory()); 
 		if( round ==1) {
 			singleMovesList=new ArrayList<Integer>();
@@ -173,17 +173,18 @@ public class StupidPlayer implements Player
 		}
 		//setMovesRandom(aintViewL,aintViewR);
 		if(movesList.isEmpty()) { 
-			printMaps();
+		//	printMaps();
 		}
 
 		lastMove=movesList.remove(0);
-		//if (debug) {
+		if (debug) {
 			System.out.println("\t\t\t*****round "+round+"lastMove "+lastMove+"  movesList="+movesList);
 			System.out.println("lastMove "+lastMove);
 			System.out.println("movesList "+movesList);
-			if(round>100)
-				printMaps();
-		//}
+//			if(round>100)
+	//			printMaps();
+		}
+		printMaps();
 		updateCurrentPosition(lastMove);
 		return lastMove;
 	}
@@ -369,7 +370,7 @@ public class StupidPlayer implements Player
 
 		} else {
 			String nextState="";
-			if (leftExitPassed==true && leftExitPassed==true) {
+			if (leftExitFound==true && rightExitFound==true) {
 				// exits known but path not known
 				// go towards max total
 				if (maximumTotalUnknown>0.0) {
@@ -404,13 +405,13 @@ public class StupidPlayer implements Player
 
 			} else {
 				// atleast one of the exits unknown
-				if (leftExitPassed==true) {
+				if (leftExitFound==true) {
 					nextState=stateBestRight;
 					if(debug) System.out.println("next state chosen stateBestRight"+stateBestRight);
 
 					// go towards max right
 				} else {
-					if (rightExitPassed==true) {
+					if (rightExitFound==true) {
 						// go towards max left
 						nextState=stateBestLeft;
 						if(debug) System.out.println("next state chosen stateBestLeft"+stateBestLeft);
@@ -465,13 +466,13 @@ public class StupidPlayer implements Player
 			distance=Integer.parseInt(arrayA[4]);
 			//
 			if(distance>oldDistance ) {
-				if( leftExitPassed==false && rightExitPassed==false) { if(maxTotalScore>0) return maxTotalScore;}
-				if( leftExitPassed==true  && rightExitPassed==false)  { if(maxRightScore>0) return maxTotalScore;}
-				if( leftExitPassed==false && rightExitPassed==true)  { if(maxLeftScore>0) return maxTotalScore; }
+				if( leftExitFound==false && rightExitFound==false) { if(maxTotalScore>0) return maxTotalScore;}
+				if( leftExitFound==true  && rightExitFound==false)  { if(maxRightScore>0) return maxTotalScore;}
+				if( leftExitFound==false && rightExitFound==true)  { if(maxLeftScore>0) return maxTotalScore; }
 				oldDistance++; 
 			}
 			distance++;
-			if(debug) System.out.println("\t\t\tbrowsing "+x1+","+y1+","+x2+","+y2+"="+distance);
+			//if(debug) System.out.println("\t\t\tbrowsing "+x1+","+y1+","+x2+","+y2+"="+distance);
 			// browsing through the possible moves
 			setBestMovesOrder( x1, y1, x2, y2);
 			for(int moves : bestMovesOrder) {
@@ -501,16 +502,16 @@ public class StupidPlayer implements Player
 						// if the control crosses this line then it means that both the exits ae known and 0 delay solution is not possible
 						if(rightNext==2) {
 							singleStepsRequired=countStepsToExit("left",xm1,ym1);
-							if (debug) { System.out.println("# right at exit "+xm2+","+ym2); System.out.println("# left at  "+xm1+","+ym1);}
+							if (debug) { System.out.println("# right at exit "+xm2+","+ym2); System.out.println("# left at  "+xm1+","+ym1);System.out.println("# singleStepsRequired   "+singleStepsRequired);}
 						}
 						if(leftNext==2) {
 							singleStepsRequired=countStepsToExit("right",xm2,ym2);
-							if(debug) { System.out.println("# left at exit "+xm1+","+ym1); System.out.println("# right at  "+xm2+","+ym2);}
+							if(debug) { System.out.println("# left at exit "+xm1+","+ym1); System.out.println("# right at  "+xm2+","+ym2);System.out.println("# singleStepsRequired   "+singleStepsRequired);}
 						}
 						if(singleStepsRequired<minSingleStepsRequired) {
 							minSingleStepsRequired=singleStepsRequired; minSingleMovesList.clear(); minSingleMovesList.addAll(singleMovesList);
 							bestDiffExitState=xm1+","+ym1+","+xm2+","+ym2+","+distance;
-							if (debug) System.out.println("singleStepsRequired"+singleStepsRequired+"singleMovesList"+singleMovesList);
+							if (debug) System.out.println("singleStepsRequired = "+singleStepsRequired+"  singleMovesList = "+singleMovesList);
 						}
 						if (debug) { System.out.println("currentState="+xm1+","+ym1+","+xm2+","+ym2+","+distance); System.out.println("singleStepsRequired="+singleStepsRequired); System.out.println("minSingleStepsRequired="+minSingleStepsRequired); System.out.println("bestDiffExitState="+bestDiffExitState);}
 					}
@@ -528,7 +529,7 @@ public class StupidPlayer implements Player
 				} else  {
 					continue;
 				}
-				if(debug) { stateKey=xm1+","+ym1+","+xm2+","+ym2; System.out.println("state "+xm1+","+ym1+","+xm2+","+ym2+"="+state.get(stateKey)+" name="+stateName);}
+				//if(debug) { stateKey=xm1+","+ym1+","+xm2+","+ym2; System.out.println("state "+xm1+","+ym1+","+xm2+","+ym2+"="+state.get(stateKey)+" name="+stateName);}
 				if (exitReached())
 					return maxTotalScore;
 				queueElements.add(stateName);
@@ -554,13 +555,13 @@ public class StupidPlayer implements Player
 			if(rightNext==1 || rightNext==4)  {rightSame++;}
 			if(leftSame==1 && rightSame==1) continue;
 
-			if ((leftExitPassed==true && rightExitPassed==true) || (leftExitPassed==false && rightExitPassed==false) ) {
+			if ((leftExitFound==true && rightExitFound==true) || (leftExitFound==false && rightExitFound==false) ) {
 				if(leftSame==0 && rightSame==0)
 					movesOrderBeg.add( moves);
 				else
 					movesOrderEnd.add(moves);
 			}
-			if (leftExitPassed==true && rightExitPassed==false) {
+			if (leftExitFound==true && rightExitFound==false) {
 				if(leftSame==0 && rightSame==0)
 					movesOrderBeg.add( moves);
 				if(leftSame==1 && rightSame==0)
@@ -569,7 +570,7 @@ public class StupidPlayer implements Player
 					movesOrderEnd.add( moves);				
 
 			}
-			if (leftExitPassed==false && rightExitPassed==true) {
+			if (leftExitFound==false && rightExitFound==true) {
 				if(leftSame==0 && rightSame==0)
 					movesOrderBeg.add( moves);
 				if(leftSame==0 && rightSame==1)
@@ -619,26 +620,27 @@ public class StupidPlayer implements Player
 				deltaX=movesArray[moves][0]; deltaY=movesArray[moves][1];
 				xm1=x1+deltaX;ym1=y1+deltaY;
 
-				if(ym1<0 ||ym1>=maxVirtualMapsize || xm1<0 ||xm1>=maxVirtualMapsize) sideNext=1;
-				else  sideNext=side.equals("left")?leftMap[ym1][xm1]:rightMap[ym1][xm1];
+				//if(ym1<0 ||ym1>=maxVirtualMapsize || xm1<0 ||xm1>=maxVirtualMapsize) sideNext=1;
+				//else  
+					sideNext=side.equals("left")?leftMap[ym1][xm1]:rightMap[ym1][xm1];
 
 				if (sideNext==1 ) 	continue;
 
+				stateKey=xm1+","+ym1;
 				if(sideNext==2) {
-					stateKey=xm1+","+ym1;
 					miniState.put(stateKey, moves);
 					//					miniState[xm1][ym1]=moves;
-					if (debug) { System.out.println("sideNext  "+sideNext); System.out.println("miniState value "+miniState.get(stateKey)); System.out.println("xm1 "+xm1+"   ym1 "+ym1); System.out.println("destX "+destX+"   destY "+destY);}
+					if (debug) { System.out.println("here singleExit sideNext  "+sideNext); System.out.println("miniState value "+miniState.get(stateKey)); System.out.println("xm1 "+xm1+"   ym1 "+ym1); System.out.println("destX "+destX+"   destY "+destY);System.out.println("distance "+distance);}
 					destinationReached=true;
 					finalDistance=distance;
 					break;
 				}
 
 				//if (stateDistance[xm1][ym1][xm2][ym2]>distance || state[xm1][ym1][xm2][ym2]==0 ) {
-				stateKey=xm1+","+ym1;
+				//stateKey=xm1+","+ym1;
 				if (!miniState.containsKey(stateKey) ) { 
 					miniState.put(stateKey, moves);
-					if (debug) {System.out.println(" 1 miniState value "+miniState.get(stateKey)); System.out.println(" 1 miniState stateName "+stateName); System.out.println(" 1 xm1 "+xm1+"   ym1 "+ym1); }
+					//if (debug) {System.out.println(" 1 miniState value "+miniState.get(stateKey)); System.out.println(" 1 miniState stateName "+stateName); System.out.println(" 1 xm1 "+xm1+"   ym1 "+ym1); }
 					stateName=xm1+","+ym1+","+distance;
 					miniQueueElements.add(stateName);
 				} else continue;
@@ -801,3 +803,5 @@ public class StupidPlayer implements Player
 		r.gc();
 	}
 }
+
+

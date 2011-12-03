@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="lib/jgrapht-0.8.2/lib/svnClientAdapter.jar"/>
 	<classpathentry kind="lib" path="lib/jgrapht-0.8.2/lib/TGGraphLayout.jar"/>
 	<classpathentry kind="lib" path="lib/jgrapht-0.8.2/lib/xmlunit1.0.jar"/>
+	<classpathentry kind="lib" path="lib/trove-3.0.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
