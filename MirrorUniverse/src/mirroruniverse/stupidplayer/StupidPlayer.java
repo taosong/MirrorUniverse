@@ -801,4 +801,3 @@ public class StupidPlayer implements Player
 		r.gc();
 	}
 }
-
