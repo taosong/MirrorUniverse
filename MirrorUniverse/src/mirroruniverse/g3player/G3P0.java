@@ -30,18 +30,31 @@ public class G3P0 implements Player {
 		 */
 		
 		byte lx, ly, rx, ry;
-		TIntList queue = new TIntLinkedList();
-		Node s = graph.getNode(getGlobalCoord((byte)0, (byte)0, transLtX),
-				getGlobalCoord((byte)0, (byte)0, transLtY),
-				getGlobalCoord((byte)0, (byte)0, transRtX),
-				getGlobalCoord((byte)0, (byte)0, transRtY));
-		queue.add(s.hashCode());
-		bfsVisit(queue, aintViewL, aintViewR, offlx, offly, offrx, offry);
 		
 		return 0;
 	}
 	
 	
+
+	private int incr(int len, int x, int deltaX) {
+		if (deltaX > 0) {
+			return x + deltaX < len ? x + deltaX : x;
+		} else {
+			return x + deltaX > 0 ? x + deltaX : x;
+		}
+	}
+	
+	public byte getGlobalCoord(byte i, byte offset, byte translate){
+		Node.checkRange(i - offset + translate);
+		return (byte)(i - offset + translate);
+	}
+	
+	public byte getLocalCoord(byte lx, byte offset, byte translate){
+		Node.checkRange(lx);
+		return (byte)(lx + offset - translate);
+	}
+	
+	/*
 	private void bfsVisit(TIntList queue, int[][] aintViewL, int[][] aintViewR,
 			byte offlx, byte offly, byte offrx, byte offry) {
 		if(queue.isEmpty()) return;
@@ -62,26 +75,6 @@ public class G3P0 implements Player {
 		}
 		
 	}
-
-	private int incr(int len, int x, int deltaX) {
-		if (deltaX > 0) {
-			return x + deltaX < len ? x + deltaX : x;
-		} else {
-			return x + deltaX > 0 ? x + deltaX : x;
-		}
-	}
-	
-
-
-	
-	public byte getGlobalCoord(byte i, byte offset, byte translate){
-		Node.checkRange(i - offset + translate);
-		return (byte)(i - offset + translate);
-	}
-	
-	public byte getLocalCoord(byte lx, byte offset, byte translate){
-		Node.checkRange(lx);
-		return (byte)(lx + offset - translate);
-	}
+*/
 
 }
