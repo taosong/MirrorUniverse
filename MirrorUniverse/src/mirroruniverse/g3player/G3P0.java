@@ -14,6 +14,7 @@ public class G3P0 implements Player {
 	byte transLtY = 0;
 	byte transRtX = 0;
 	byte transRtY = 0;
+	Node exit = null;
 
 	@Override
 	public int lookAndMove(int[][] aintViewL, int[][] aintViewR) {
@@ -30,10 +31,11 @@ public class G3P0 implements Player {
 		
 		byte lx, ly, rx, ry;
 		TIntList queue = new TIntLinkedList();
-		queue.add(Node.getHash(getGlobalCoord((byte)0, (byte)0, transLtX),
+		Node s = graph.getNode(getGlobalCoord((byte)0, (byte)0, transLtX),
 				getGlobalCoord((byte)0, (byte)0, transLtY),
 				getGlobalCoord((byte)0, (byte)0, transRtX),
-				getGlobalCoord((byte)0, (byte)0, transRtY)));
+				getGlobalCoord((byte)0, (byte)0, transRtY));
+		queue.add(s.hashCode());
 		bfsVisit(queue, aintViewL, aintViewR, offlx, offly, offrx, offry);
 		
 		return 0;
@@ -47,12 +49,17 @@ public class G3P0 implements Player {
 		
 		byte[] globals  = Node.getBytes(src);
 
-		byte i = getLocalCoord(globals[0], offlx, transLtX);
-		byte j = getLocalCoord(globals[1], offly, transLtY);
-		byte k = getLocalCoord(globals[2], offrx, transRtX);
-		byte l = getLocalCoord(globals[3], offry, transRtY);
+		byte j = getLocalCoord(globals[0], offlx, transLtX);
+		byte i = getLocalCoord(globals[1], offly, transLtY);
+		byte l = getLocalCoord(globals[2], offrx, transRtX);
+		byte k = getLocalCoord(globals[3], offry, transRtY);
 		
-		
+		for(byte deltaI = -1; deltaI < 2; deltaI++){
+			for(byte deltaJ = -1; deltaJ < 2; deltaJ++){
+				int jprime = incr(aintViewL[i].length, j, deltaJ);
+				
+			}
+		}
 		
 	}
 
