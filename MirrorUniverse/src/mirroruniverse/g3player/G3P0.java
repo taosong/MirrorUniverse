@@ -31,6 +31,11 @@ public class G3P0 implements Player {
 		return 0;
 	}
 	
+	private Node explore(Node current){
+		Node target = null; 
+		return target;
+	}
+	
 	private void buildGraph(int[][] leftView, int[][] rightView){
 		// add all vertices and set edges
 		for (int i = 0; i < leftView.length; i++)

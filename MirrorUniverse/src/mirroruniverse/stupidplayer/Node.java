@@ -2,11 +2,15 @@ package mirroruniverse.stupidplayer;
 
 public class Node {
 	private int[] edges = new int[8];
-	private byte[] edgeWeights = new byte[8];
 	private byte lx;
 	private byte ly;
 	private byte rx;
 	private byte ry;
+	
+	// we dont really need this edgeWeight array since we can code 
+	// the getEdgeWeight() method to return a large value for all 
+	// edges out of the sink and one otherwise
+	private byte[] edgeWeights = new byte[8];
 	
 	public static final int UNEXPLORED = (125 << 24)+ ((125 & 0xFF) << 16)+ 
 			((125 & 0xFF) << 8)+ (125 & 0xFF);
@@ -85,6 +89,8 @@ public class Node {
 		return ry;
 	}
 	
-	
+	public int getEdgeWeight(int dir){
+		return edgeWeights[dir-1];
+	}
 	
 }
