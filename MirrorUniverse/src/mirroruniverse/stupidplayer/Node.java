@@ -2,6 +2,7 @@ package mirroruniverse.stupidplayer;
 
 public class Node {
 	private int[] edges = new int[8];
+	private byte[] edgeWeights = new byte[8];
 	private byte lx;
 	private byte ly;
 	private byte rx;
@@ -33,8 +34,13 @@ public class Node {
 	}
 	
 	public void addEdge(int dir, int target){
+		addEdge(dir, target, (byte)1);
+	}
+	
+	public void addEdge(int dir, int target, byte edgeWeight){
 		assert(dir > 0 && dir < 9);
 		edges[dir-1] = target;
+		edgeWeights[dir-1] = edgeWeight;
 	}
 	
 	public static int getHash(byte lx, byte ly, byte rx, byte ry){
@@ -62,6 +68,23 @@ public class Node {
 	public String toString() {
 		return "{("+lx+","+ly+");("+rx+","+ry+")}";
 	}
+
+	public byte getLx() {
+		return lx;
+	}
+
+	public byte getLy() {
+		return ly;
+	}
+
+	public byte getRx() {
+		return rx;
+	}
+
+	public byte getRy() {
+		return ry;
+	}
+	
 	
 	
 }
