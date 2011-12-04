@@ -7,13 +7,8 @@ import mirroruniverse.sim.Player;
 
 public class StupidPlayer implements Player
 {
-	boolean debug = false;
+	boolean debug =false;
 	int round=0;
-	/*
-	 * This is the maximum sidelength of the map on which it will work
-	 * it has to be hrdcoded to 100 as per the problem statement
-	 */
-	int maxMapSideLength=100;
 
 
 	/*
@@ -53,6 +48,11 @@ public class StupidPlayer implements Player
 	// trivial: for debugging
 	boolean leftExitPassedFlag=false, rightExitPassedFlag=false;
 
+	/*
+	 * This is the maximum sidelength of the map on which it will work
+	 * it has to be hrdcoded to 100 as per the problem statement
+	 */
+	int maxMapSideLength=40;
 
 	/*
 	 * this is the map size which we will consider  
@@ -140,7 +140,7 @@ public class StupidPlayer implements Player
 	{
 		round++;
 		//if(round>300 )
-			//debug=false;
+		//debug=false;
 		//System.out.println(java.lang.Runtime.getRuntime().maxMemory()); 
 		if( round ==1) {
 			singleMovesList=new ArrayList<Integer>();
@@ -162,7 +162,7 @@ public class StupidPlayer implements Player
 			movesList.clear();
 			leftExitPassedFlag=true;
 		}
-		
+
 
 
 		if (movesList.isEmpty()) {
@@ -173,7 +173,7 @@ public class StupidPlayer implements Player
 		}
 		//setMovesRandom(aintViewL,aintViewR);
 		if(movesList.isEmpty()) { 
-		//	printMaps();
+			//	printMaps();
 		}
 
 		lastMove=movesList.remove(0);
@@ -181,9 +181,10 @@ public class StupidPlayer implements Player
 			System.out.println("\t\t\t*****round "+round+"lastMove "+lastMove+"  movesList="+movesList);
 			System.out.println("lastMove "+lastMove);
 			System.out.println("movesList "+movesList);
-			if(round>100)
-				printMaps();
+			//			if(round>100)
+			//			printMaps();
 		}
+		//printMaps();
 		updateCurrentPosition(lastMove);
 		return lastMove;
 	}
@@ -345,6 +346,18 @@ public class StupidPlayer implements Player
 	public void setMoves(int[][] aintViewL, int[][] aintViewR )
 	{
 		//state[lPlayer_X_Position][lPlayer_Y_Position][rPlayer_X_Position][rPlayer_Y_Position]=900;
+		if (leftExited) {
+			singleBrowse("right",rPlayer_X_Position,rPlayer_Y_Position);
+			movesList=new ArrayList<Integer>();
+			movesList.addAll(minSingleMovesList);
+			return;
+		}
+		if (rightExited) {
+			singleBrowse("left",lPlayer_X_Position,lPlayer_Y_Position);
+			movesList=new ArrayList<Integer>();
+			movesList.addAll(minSingleMovesList);
+			return;
+		}
 		state.clear();
 		state = new HashMap<String,Integer>();
 
@@ -406,26 +419,50 @@ public class StupidPlayer implements Player
 				// atleast one of the exits unknown
 				if (leftExitFound==true) {
 					nextState=stateBestRight;
-					if(debug) System.out.println("next state chosen stateBestRight"+stateBestRight);
+					String[] arrayA=nextState.split(",");
+					if (Integer.parseInt(arrayA[6])<=0) {
+						int steps =countStepsToExit("left",lPlayer_X_Position,lPlayer_Y_Position);
+						movesList.addAll(singleMovesList);
+						movesListSet=true;
+						if(debug)
+							System.out.println("next state was chosen stateBestRight "+stateBestRight+" but overridden by leftAloneExit  as the right player cant see anything new without left player stepping on the leftExit == movesList "+movesList+"  steps="+steps);
+					}else  {
+						if(debug) 
+							System.out.println("next state chosen stateBestRight"+stateBestRight);
+					}
 
 					// go towards max right
 				} else {
 					if (rightExitFound==true) {
 						// go towards max left
 						nextState=stateBestLeft;
-						if(debug) System.out.println("next state chosen stateBestLeft"+stateBestLeft);
+						String[] arrayA=nextState.split(",");
+						if (Integer.parseInt(arrayA[5])<=0) {
+							countStepsToExit("right",rPlayer_X_Position,rPlayer_Y_Position);
+							movesList.addAll(singleMovesList);
+							movesListSet=true;
+							if(debug) System.out.println("next state was chosen stateBestLeft "+stateBestLeft+" but overridden by rightAloneExit  as the left player cant see anything new without right player stepping on the right ");
+						}else  {
+							if(debug) System.out.println("next state chosen stateBestLeft"+stateBestLeft);
+						}
 					} else {
 						nextState=stateBestBoth;
-						if(debug) System.out.println("next state chosen stateBestBoth"+stateBestBoth);
+						String[] arrayA=nextState.split(",");
+						if (Integer.parseInt(arrayA[7])<=0) {
+							System.out.println(" This line should never be printed - It means that exits are not reachable");
+						}else  {
+							if(debug) System.out.println("next state chosen stateBestBoth"+stateBestBoth);
+						}
 						// go towards max total
 					}
 				}
 			}
 			if(!movesListSet) {
-				if(debug) System.out.println("next state chosen "+nextState);
 				String[] arrayA=nextState.split(",");
 				int x1=Integer.parseInt(arrayA[0]); int y1=Integer.parseInt(arrayA[1]); 
 				int x2=Integer.parseInt(arrayA[2]); int y2=Integer.parseInt(arrayA[3]);
+				int distanceToBestState=Integer.parseInt(arrayA[4]);
+				if(debug) System.out.println("next state chosen "+nextState+" with distance "+distanceToBestState);
 				updateMovesList(x1,y1,x2,y2);
 			}
 
@@ -488,7 +525,7 @@ public class StupidPlayer implements Player
 
 				if(leftNext==1 ) { xm1=x1;ym1=y1;leftSame++;}
 				if(rightNext==1 )  {xm2=x2;ym2=y2;rightSame++;}
-				
+
 				if(rightNext==4 || leftNext==4) { continue;}
 
 
@@ -536,6 +573,76 @@ public class StupidPlayer implements Player
 			}
 		}
 		return maxTotalScore;
+	}
+
+	/*
+	 * This is the  function which will be invoked if a player has exited and the sibling has not yet 
+	 * found the exit; do it will returns the moves to have the sibling exit
+	 * 
+	 */
+	public double singleBrowse(String side,int xx1,int yy1) {
+		int x1,y1,xm1,ym1,deltaX,deltaY,distance=0,destX=xx1,destY=yy1;
+		// here distance is measured in moves
+		String stateName=xx1+","+yy1+","+distance+",0,0";
+		//System.out.println("singleBrowse called side"+side);
+
+		boolean destinationReached=false;
+		double maxScore=0;
+		int sideNext;
+		miniState = new HashMap<String,Integer>();
+		String stateKey=xx1+","+yy1;
+		miniState.put(stateKey, 0);
+		ArrayList<String> miniQueueElements=new ArrayList<String>();
+		miniQueueElements.add(stateName);
+		int oldDistance =distance;
+		while(!miniQueueElements.isEmpty()){
+			if (destinationReached)
+				break;
+			stateName=miniQueueElements.remove(0);
+			String[] arrayA=stateName.split(",");
+			x1=Integer.parseInt(arrayA[0]); y1=Integer.parseInt(arrayA[1]);
+			distance=Integer.parseInt(arrayA[2]);
+			//
+			boolean exitSighted=side.equals("left")?leftExitPassed:rightExitPassed;
+			if(distance>oldDistance && !exitSighted) {
+				if(maxScore>0) break; 
+				oldDistance++; 
+			}
+			distance++;
+			// browsing through the possible moves
+			for(int moves =1;moves<=8;moves++) {
+				deltaX=movesArray[moves][0]; deltaY=movesArray[moves][1];
+				xm1=x1+deltaX;ym1=y1+deltaY;
+				stateKey=xm1+","+ym1;
+				sideNext=side.equals("left")?leftMap[ym1][xm1]:rightMap[ym1][xm1];
+
+				if (sideNext==1 || sideNext==4 ) 	continue;
+
+				stateName=xm1+","+ym1+","+distance;
+				if(sideNext==2) {
+					//System.out.println("\t\t\t\t\t\t lonely "+side+"ExitFound "+xm1+","+ym1);
+					miniState.put(stateKey, moves);
+					destX=xm1;destY=ym1;
+					destinationReached=true;
+					maxScore=distance;
+					break;
+				}
+				if (!miniState.containsKey(stateKey) ) { 
+					miniState.put(stateKey, moves);
+					miniQueueElements.add(stateName);
+					int sideUnknown=unknownCount(xm1,ym1,side);
+					stateName=xm1+","+ym1+","+distance+","+sideUnknown;
+					if((10000.0*sideUnknown/distance )>maxScore)    { maxScore=10000.0*sideUnknown/distance  ;destX=xm1;destY=ym1;}
+				}
+			}
+		}
+		singleMovesList=new ArrayList<Integer>();
+		stateKey=xx1+","+yy1;
+		miniState.put(stateKey, 0);
+		updateSingleMovesList(destX,destY);
+		minSingleMovesList.clear(); minSingleMovesList.addAll(singleMovesList);
+		//System.out.println("minSingleMovesList="+minSingleMovesList);
+		return maxScore;
 	}
 
 	public void setBestMovesOrder(int x1,int y1,int x2,int y2) {
@@ -596,7 +703,7 @@ public class StupidPlayer implements Player
 		if (side=="left") { destX=lPlayer_X_Exit; destY=lPlayer_Y_Exit; 
 		} else { destX=rPlayer_X_Exit; destY=rPlayer_Y_Exit; }
 
-		if(debug) System.out.println("countStepsToExit side="+side+" xPos="+xPos+" yPos="+yPos+"  destX,destY="+destX+","+destY);
+		//System.out.println("countStepsToExit side="+side+" xPos="+xPos+" yPos="+yPos+"  destX,destY="+destX+","+destY);
 
 		String stateName=xPos+","+yPos+","+distance;
 		ArrayList<String> miniQueueElements=new ArrayList<String>();
@@ -621,7 +728,7 @@ public class StupidPlayer implements Player
 
 				//if(ym1<0 ||ym1>=maxVirtualMapsize || xm1<0 ||xm1>=maxVirtualMapsize) sideNext=1;
 				//else  
-					sideNext=side.equals("left")?leftMap[ym1][xm1]:rightMap[ym1][xm1];
+				sideNext=side.equals("left")?leftMap[ym1][xm1]:rightMap[ym1][xm1];
 
 				if (sideNext==1 ) 	continue;
 
@@ -659,19 +766,24 @@ public class StupidPlayer implements Player
 	 */
 	public void updateSingleMovesList(int x1,int y1) {
 		String  stateKey=x1+","+y1;
-
+		//System.out.println("input to updateSingleMovesList "+x1+","+y1);
 		int moveState = miniState.get(stateKey);
+		//System.out.println(" input move state begin"+moveState);
 		int moves;
 		int xm1=x1,ym1=y1,deltaX,deltaY;
 		while (moveState!=0) {
 			moves=moveState;
+			//System.out.println(" pos begin  "+xm1+","+ym1);
+			//System.out.println(" move state begin"+moves);
 			singleMovesList.add(0,moves );
 			deltaX=movesArray[moves][0];
 			deltaY=movesArray[moves][1];
 			xm1=xm1-deltaX;
 			ym1=ym1-deltaY;
 			stateKey=xm1+","+ym1;
+			//System.out.println(" \tprevious stateKey "+stateKey+","+miniState.get(stateKey));
 			moveState = miniState.get(stateKey);
+			//System.out.println(" \t\t\t\t singleMovesList "+singleMovesList);
 		} 
 	}
 
@@ -803,4 +915,9 @@ public class StupidPlayer implements Player
 	}
 }
 
-
+/*
+ * TTD
+ * lower bound of exit
+ * giving high priority to the neighbours of exit 
+ * 
+ */
