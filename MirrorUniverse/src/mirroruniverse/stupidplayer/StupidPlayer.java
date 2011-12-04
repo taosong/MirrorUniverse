@@ -7,8 +7,13 @@ import mirroruniverse.sim.Player;
 
 public class StupidPlayer implements Player
 {
-	boolean debug =true;
+	boolean debug = false;
 	int round=0;
+	/*
+	 * This is the maximum sidelength of the map on which it will work
+	 * it has to be hrdcoded to 100 as per the problem statement
+	 */
+	int maxMapSideLength=101;
 
 
 	/*
@@ -48,11 +53,6 @@ public class StupidPlayer implements Player
 	// trivial: for debugging
 	boolean leftExitPassedFlag=false, rightExitPassedFlag=false;
 
-	/*
-	 * This is the maximum sidelength of the map on which it will work
-	 * it has to be hrdcoded to 100 as per the problem statement
-	 */
-	int maxMapSideLength=30;
 
 	/*
 	 * this is the map size which we will consider  
@@ -181,10 +181,9 @@ public class StupidPlayer implements Player
 			System.out.println("\t\t\t*****round "+round+"lastMove "+lastMove+"  movesList="+movesList);
 			System.out.println("lastMove "+lastMove);
 			System.out.println("movesList "+movesList);
-//			if(round>100)
-	//			printMaps();
+			if(round>100)
+				printMaps();
 		}
-		printMaps();
 		updateCurrentPosition(lastMove);
 		return lastMove;
 	}
