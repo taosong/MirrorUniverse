@@ -7,6 +7,11 @@ public class Node {
 	private byte rx;
 	private byte ry;
 	
+	// we dont really need this edgeWeight array since we can code 
+	// the getEdgeWeight() method to return a large value for all 
+	// edges out of the sink and one otherwise
+	private byte[] edgeWeights = new byte[8];
+	
 	public static final int UNEXPLORED = (125 << 24)+ ((125 & 0xFF) << 16)+ 
 			((125 & 0xFF) << 8)+ (125 & 0xFF);
 	
@@ -32,9 +37,21 @@ public class Node {
 		return count;
 	}
 	
+	public int getDir(int target){
+		for(int e = 0; e < 8; e++){
+			if(edges[e] == target) return e+1;
+		}
+		return -1;
+	}
+	
 	public void addEdge(int dir, int target){
+		addEdge(dir, target, (byte)1);
+	}
+	
+	public void addEdge(int dir, int target, byte edgeWeight){
 		assert(dir > 0 && dir < 9);
 		edges[dir-1] = target;
+		edgeWeights[dir-1] = edgeWeight;
 	}
 	
 	public static int getHash(byte lx, byte ly, byte rx, byte ry){
@@ -62,6 +79,31 @@ public class Node {
 	public String toString() {
 		return "{("+lx+","+ly+");("+rx+","+ry+")}";
 	}
+
+	public byte getLx() {
+		return lx;
+	}
+
+	public byte getLy() {
+		return ly;
+	}
+
+	public byte getRx() {
+		return rx;
+	}
+
+	public byte getRy() {
+		return ry;
+	}
+	
+	public int getEdgeWeight(int dir){
+		return edgeWeights[dir-1];
+	}
+
+	public int[] getEdges() {
+		return edges;
+	}
+	
 	
 	
 }
