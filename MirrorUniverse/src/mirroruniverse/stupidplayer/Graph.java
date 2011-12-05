@@ -1,6 +1,5 @@
 package mirroruniverse.stupidplayer;
 
-import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.linked.TIntLinkedList;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntIntHashMap;
@@ -12,11 +11,23 @@ public class Graph {
 	
 	public Node getNode(byte lx, byte ly, byte rx, byte ry){
 		int key = Node.getHash(lx, ly, rx, ry);
-		if(!V.containsKey(key)){
-			Node newNode = new Node(lx,ly,rx,ry);
-			V.put(key, newNode);
-		}
 		return V.get(key);
+	}
+	
+	public Node addNode(byte lx, byte ly, byte rx, byte ry, byte nature){
+		int key = Node.getHash(lx, ly, rx, ry);
+		Node node = null;
+		if(!V.containsKey(key)){
+			node = new Node(lx, ly, rx, ry, nature);
+			V.put(key, node);
+		}else{
+			node = V.get(key);
+		}
+		return node;
+	}
+	
+	public Node getNode(int hash){
+		return V.get(hash);
 	}
 	
 	public boolean hasNode(byte lx, byte ly, byte rx, byte ry){
@@ -35,15 +46,19 @@ public class Graph {
 			int d = heap.getRootValue();
 			int uKey = heap.extractMin();
 			Node u = V.get(uKey);
-			for(int v : u.getEdges()){
+			for(int direction = 1; direction < 9 ; direction++ ){
+				int v = u.getEdge(direction);
+				Node vNode = V.get(v);
+				int weight = u.getEdgeWeight(direction, vNode);
 				if( v != Node.UNEXPLORED){
-					if(heap.isPresent(v) && heap.getValue(v) < d+1){
+					
+					if(heap.isPresent(v) && heap.getValue(v) < d+weight){
 							pi.put(v, uKey);
-							heap.decreaseKey(heap.getIndex(v), d+1);
+							heap.decreaseKey(heap.getIndex(v), d+weight);
 						}
 					else{
 						pi.put(v, uKey);
-						heap.insert(v, d+1);
+						heap.insert(v, d+weight);
 					}
 				}
 			}
