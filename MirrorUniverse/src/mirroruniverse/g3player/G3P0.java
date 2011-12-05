@@ -33,6 +33,7 @@ public class G3P0 implements Player {
 	
 	private Node explore(Node current){
 		Node target = null; 
+		
 		return target;
 	}
 	
@@ -46,15 +47,22 @@ public class G3P0 implements Player {
 						
 						if(leftView[i][j] == 2 && rightView[k][l] == 2){
 							// do something special here
-							
-						}
-						
-						if (leftView[i][j] != 1 && rightView[k][l] != 1) {
-							Node current = graph.getNode(
+							// like setting the exit
+							if(exit == null) exit = graph.addNode(
 									getGlobalCoord(j, offly, transLtX),
 									getGlobalCoord(i, offlx, transLtY),
 									getGlobalCoord(l, offrx, transRtX),
-									getGlobalCoord(k, offry, transRtY));
+									getGlobalCoord(k, offry, transRtY),
+									(byte)2);
+						}
+						
+						if (leftView[i][j] != 1 && rightView[k][l] != 1) {
+							Node current = graph.addNode(
+									getGlobalCoord(j, offly, transLtX),
+									getGlobalCoord(i, offlx, transLtY),
+									getGlobalCoord(l, offrx, transRtX),
+									getGlobalCoord(k, offry, transRtY),
+									(byte)0);
 							setEdges(current, leftView, rightView, i, j, k ,l);
 						}
 					}
@@ -83,20 +91,20 @@ public class G3P0 implements Player {
 					
 					// both are open or one is open
 					else if(leftView[iprime][jprime] == 0 && rightView[kprime][lprime] == 0){
-						target = graph.getNode( (byte)(node.getLx() + deltaX), (byte)(node.getLy() + deltaY),
-								(byte)(node.getRx() + deltaX), (byte)(node.getRy() + deltaY));
+						target = graph.addNode( (byte)(node.getLx() + deltaX), (byte)(node.getLy() + deltaY),
+								(byte)(node.getRx() + deltaX), (byte)(node.getRy() + deltaY), (byte)0);
 					}else if( leftView[iprime][jprime] == 0 && rightView[kprime][lprime] == 1){
-						target = graph.getNode( (byte) (node.getLx() + deltaX), (byte)(node.getLy() + deltaY),
-								node.getRx(), node.getRy());
+						target = graph.addNode( (byte) (node.getLx() + deltaX), (byte)(node.getLy() + deltaY),
+								node.getRx(), node.getRy(), (byte)0);
 					}else if( leftView[iprime][jprime] == 1 && rightView[kprime][lprime] == 0){
-						target = graph.getNode( node.getLx(), node.getLy(),
-								(byte)(node.getRx() + deltaX), (byte)(node.getRy() + deltaY));
+						target = graph.addNode( node.getLx(), node.getLy(),
+								(byte)(node.getRx() + deltaX), (byte)(node.getRy() + deltaY), (byte)0);
 					}else 
 						// we found the exit!!
-						if( leftView[iprime][jprime] == 2 && rightView[kprime][lprime] == 2){
-						target = graph.getNode( (byte)(node.getLx() + deltaX), (byte)(node.getLy() + deltaY),
-								(byte)(node.getRx() + deltaX), (byte)(node.getRy() + deltaY));
-						if(exit == null) exit = target;
+						if( leftView[iprime][jprime] == 2 || rightView[kprime][lprime] == 2){
+						target = graph.addNode( (byte)(node.getLx() + deltaX), (byte)(node.getLy() + deltaY),
+								(byte)(node.getRx() + deltaX), (byte)(node.getRy() + deltaY), (byte)2);
+						
 					}
 					
 					node.addEdge(dirs[deltaX+1][deltaY+1], target.hashCode());

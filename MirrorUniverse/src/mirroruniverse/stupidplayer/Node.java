@@ -7,10 +7,8 @@ public class Node {
 	private byte rx;
 	private byte ry;
 	
-	// we dont really need this edgeWeight array since we can code 
-	// the getEdgeWeight() method to return a large value for all 
-	// edges out of the sink and one otherwise
-	private byte[] edgeWeights = new byte[8];
+	// 0 = open, 2 = exit
+	private byte nature;
 	
 	public static final int UNEXPLORED = (125 << 24)+ ((125 & 0xFF) << 16)+ 
 			((125 & 0xFF) << 8)+ (125 & 0xFF);
@@ -19,11 +17,12 @@ public class Node {
 		assert(x > -129 && x < 128);
 	}
 	
-	protected Node(byte lx, byte ly, byte rx, byte ry) {
+	protected Node(byte lx, byte ly, byte rx, byte ry, byte nature) {
 		this.lx = (byte)lx;
 		this.ly = (byte)ly;
 		this.rx = (byte)rx;
 		this.ry = (byte)ry;
+		this.nature = nature;
 		for(byte i = 0; i < 8; i++){
 			edges[i] = UNEXPLORED;
 		}
@@ -45,13 +44,8 @@ public class Node {
 	}
 	
 	public void addEdge(int dir, int target){
-		addEdge(dir, target, (byte)1);
-	}
-	
-	public void addEdge(int dir, int target, byte edgeWeight){
 		assert(dir > 0 && dir < 9);
 		edges[dir-1] = target;
-		edgeWeights[dir-1] = edgeWeight;
 	}
 	
 	public static int getHash(byte lx, byte ly, byte rx, byte ry){
@@ -96,14 +90,18 @@ public class Node {
 		return ry;
 	}
 	
-	public int getEdgeWeight(int dir){
-		return edgeWeights[dir-1];
+	public int getEdgeWeight(int dir, Node v){
+		assert(edges[dir-1] == v.hashCode());
+		if(v.nature == 0) return 1;
+		else return Integer.MAX_VALUE;
 	}
 
 	public int[] getEdges() {
 		return edges;
 	}
 	
-	
+	public int getEdge(int dir){
+		return edges[dir];
+	}
 	
 }
