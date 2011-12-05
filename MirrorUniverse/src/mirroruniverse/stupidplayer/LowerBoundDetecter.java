@@ -29,7 +29,7 @@ public class LowerBoundDetecter {
 		out = new ArrayList<PointPair>();
 	}
 	
-	public int getLowerBond(int[][] leftMap, int[][] rightMap, int leftExitx, int leftExity, int rightExitx, int rightExity){
+	public int getLowerBound(int[][] leftMap, int[][] rightMap, int leftExitx, int leftExity, int rightExitx, int rightExity){
 		graph = new DefaultDirectedWeightedGraph<PointPair, SimpleEdge>(
 				SimpleEdge.class);
 		buildLocalMap(leftMap, rightMap, leftExitx, leftExity, rightExitx, rightExity);
@@ -68,7 +68,7 @@ public class LowerBoundDetecter {
 			}
 			System.out.println();
 		}
-		int diff = lb.getLowerBond(leftMap, rightMap, 1, 1, 1, 2);
+		int diff = lb.getLowerBound(leftMap, rightMap, 1, 1, 1, 2);
 		//System.out.println("diff = " + diff);
 	}
 

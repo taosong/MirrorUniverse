@@ -10,7 +10,12 @@ public class StupidPlayer implements Player
 	boolean debug =false;
 	int round=0;
 	LowerBoundDetecter lb = new LowerBoundDetecter();
-
+	int justExplore=0;
+	int maxJustExplore=20;
+	Date start;
+	Date lastStep;
+	private static final long TIMELIMIT = 250 * 1000; //250s
+	private int lastTimeUse;
 	/*
 	 * initially moveList is empty --
 	 * the player selects the best place to move and stores the moves that would take it 
@@ -136,6 +141,7 @@ public class StupidPlayer implements Player
 
 
 
+
 	public int lookAndMove( int[][] aintViewL, int[][] aintViewR )
 	{
 		round++;
@@ -148,7 +154,12 @@ public class StupidPlayer implements Player
 			movesList=new ArrayList<Integer>();
 			state = new HashMap<String,Integer>();
 			setLeftRightMap(aintViewL,aintViewR);
+			start = new Date();
+			lastStep = new Date();
 		}
+		
+		
+		System.out.println(":::now it's "+new Date());
 
 		// will map the new info in our maps
 		updateLeftRightMap(aintViewL,aintViewR);
@@ -187,6 +198,7 @@ public class StupidPlayer implements Player
 		updateCurrentPosition(lastMove);
 		//	if(round >149)
 		//	printMaps();
+		lastTimeUse = (int) (new Date().getTime() - lastStep.getTime());
 		return lastMove;
 	}
 
@@ -216,7 +228,7 @@ public class StupidPlayer implements Player
 			lPlayer_X_Position=lPlayer_X_Position_New;
 			lPlayer_Y_Position=lPlayer_Y_Position_New;
 		}
-        //System.out.println("rPlayer_Y_Position_New="+rPlayer_Y_Position_New+" rPlayer_X_Position_New="+rPlayer_X_Position_New);
+		//System.out.println("rPlayer_Y_Position_New="+rPlayer_Y_Position_New+" rPlayer_X_Position_New="+rPlayer_X_Position_New);
 		if(rightExited || rightMap[rPlayer_Y_Position_New][rPlayer_X_Position_New]==1 ){
 			xShiftRight=0;
 			yShiftRight=0;
@@ -347,6 +359,7 @@ public class StupidPlayer implements Player
 	public void setMoves(int[][] aintViewL, int[][] aintViewR )
 	{
 		//state[lPlayer_X_Position][lPlayer_Y_Position][rPlayer_X_Position][rPlayer_Y_Position]=900;
+		int lowerBound = lb.getLowerBound(leftMap, rightMap, lPlayer_Y_Exit,lPlayer_X_Exit, rPlayer_Y_Exit,rPlayer_X_Exit);
 		if (leftExited) {
 			singleBrowse("right",rPlayer_X_Position,rPlayer_Y_Position);
 			movesList=new ArrayList<Integer>();
@@ -386,9 +399,13 @@ public class StupidPlayer implements Player
 			if (leftExitFound==true && rightExitFound==true) {
 				// exits known but path not known
 				// go towards max total
-				int lowerBond = lb.getLowerBond(leftMap, rightMap, lPlayer_Y_Exit,lPlayer_X_Exit, rPlayer_Y_Exit,rPlayer_X_Exit);
-				System.out.println(lowerBond + "lower bond =================");
-				if (maximumTotalUnknown>0.0) {
+				//System.out.println(lowerBond + "lower bound =================");
+				if (maximumTotalUnknown>0.0 && new Date().getTime() - start.getTime() <= TIMELIMIT-lastTimeUse) {
+					if(justExplore==0) {
+						justExplore=maxJustExplore;
+					} else {
+						justExplore--;
+					}
 					if(debug) System.out.println("next state chosen stateBestBoth"+nextState);
 					nextState=stateBestBoth;
 				} else  {
@@ -485,8 +502,8 @@ public class StupidPlayer implements Player
 			}
 
 		}
-
-
+		
+		lastStep = new Date();
 	}
 
 
@@ -518,6 +535,7 @@ public class StupidPlayer implements Player
 			distance=Integer.parseInt(arrayA[4]);
 			//
 			if(distance>oldDistance ) {
+				if( justExplore>0) { if(maxTotalScore>0) return maxTotalScore;}
 				if( leftExitFound==false && rightExitFound==false) { if(maxTotalScore>0) return maxTotalScore;}
 				if( leftExitFound==true  && rightExitFound==false)  { if(maxRightScore>0) return maxTotalScore;}
 				if( leftExitFound==false && rightExitFound==true)  { if(maxLeftScore>0) return maxTotalScore; }
