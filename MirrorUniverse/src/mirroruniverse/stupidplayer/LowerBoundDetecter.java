@@ -8,11 +8,11 @@ import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 
 public class LowerBoundDetecter {
-	public static final int BOND = 8;
+	public static final int BOND = 3;
 	public static final int MAXSIZE = (BOND+1)*2+1;
 	private int[][] localLeftMap;
 	private int[][] localRightMap;
-	public static final boolean printGraph = true;
+	public static final boolean printGraph = false;
 
 	private DefaultDirectedWeightedGraph<PointPair, SimpleEdge> graph;
 	

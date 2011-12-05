@@ -157,9 +157,6 @@ public class StupidPlayer implements Player
 			start = new Date();
 			lastStep = new Date();
 		}
-		
-		
-		System.out.println(":::now it's "+new Date());
 
 		// will map the new info in our maps
 		updateLeftRightMap(aintViewL,aintViewR);
@@ -198,7 +195,6 @@ public class StupidPlayer implements Player
 		updateCurrentPosition(lastMove);
 		//	if(round >149)
 		//	printMaps();
-		lastTimeUse = (int) (new Date().getTime() - lastStep.getTime());
 		return lastMove;
 	}
 
@@ -359,7 +355,6 @@ public class StupidPlayer implements Player
 	public void setMoves(int[][] aintViewL, int[][] aintViewR )
 	{
 		//state[lPlayer_X_Position][lPlayer_Y_Position][rPlayer_X_Position][rPlayer_Y_Position]=900;
-		int lowerBound = lb.getLowerBound(leftMap, rightMap, lPlayer_Y_Exit,lPlayer_X_Exit, rPlayer_Y_Exit,rPlayer_X_Exit);
 		if (leftExited) {
 			singleBrowse("right",rPlayer_X_Position,rPlayer_Y_Position);
 			movesList=new ArrayList<Integer>();
@@ -396,13 +391,19 @@ public class StupidPlayer implements Player
 
 		} else {
 			String nextState="";
-			if (leftExitFound==true && rightExitFound==true) {
+			if (leftExitFound==true && rightExitFound==true) {				
+				//int lowerBound = lb.getLowerBound(leftMap, rightMap, lPlayer_Y_Exit,lPlayer_X_Exit, rPlayer_Y_Exit,rPlayer_X_Exit);
 				// exits known but path not known
 				// go towards max total
 				//System.out.println(lowerBond + "lower bound =================");
 				if (maximumTotalUnknown>0.0 && new Date().getTime() - start.getTime() <= TIMELIMIT-lastTimeUse) {
 					if(justExplore==0) {
 						justExplore=maxJustExplore;
+						
+						lastStep = new Date();
+						System.out.println(":::now it's "+new Date());
+						lastTimeUse = (int) (new Date().getTime() - lastStep.getTime());
+						
 					} else {
 						justExplore--;
 					}
@@ -503,7 +504,6 @@ public class StupidPlayer implements Player
 
 		}
 		
-		lastStep = new Date();
 	}
 
 
