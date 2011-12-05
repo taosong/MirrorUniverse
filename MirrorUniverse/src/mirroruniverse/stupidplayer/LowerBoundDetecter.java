@@ -38,21 +38,38 @@ public class LowerBoundDetecter {
 		PointPair start = pc[0][0][0][0];
 		path = DijkstraShortestPath.findPathBetween(graph, start, exit);
 
-		System.out.println("=====path==========" + path);
+		//System.out.println("=====path==========" + path);
 		int sum = 0;
-		for(SimpleEdge e : path){
-			sum+=e.getWeight();
+		if(path!=null){
+			for(SimpleEdge e : path){
+				sum+=e.getWeight();
+			}
 		}
+		else
+			System.out.println("null path in Lower Bond Detecter");
 		return sum;
 	}
 	
 	public static void main(String[] args) {
 		LowerBoundDetecter lb = new LowerBoundDetecter();
-		int[][] leftMap = {{1,1,1},{1,2,0},{0,0,0}};
+		int[][] leftMap = {{0,0,1},{1,2,0},{1,0,0}};
+
+		for(int i = 0; i<leftMap.length;i++){
+			for(int j = 0;j<leftMap[0].length;j++){
+				System.out.print(leftMap[i][j]+" ");
+			}
+			System.out.println();
+		}
 		System.out.println(leftMap.length);
-		int[][] rightMap = {{1,0,1},{1,2,1},{1,1,1}};
-		int diff = lb.getLowerBond(leftMap, rightMap, 1, 1, 1, 1);
-		System.out.println("diff = " + diff);
+		int[][] rightMap = {{1,1,1,0},{1,1,2,1},{1,0,1,1}};
+		for(int i = 0; i<rightMap.length;i++){
+			for(int j = 0;j<rightMap[0].length;j++){
+				System.out.print(rightMap[i][j]+" ");
+			}
+			System.out.println();
+		}
+		int diff = lb.getLowerBond(leftMap, rightMap, 1, 1, 1, 2);
+		//System.out.println("diff = " + diff);
 	}
 
 	private void buildLocalMap(int[][] leftMap, int[][] rightMap,int leftExitx, int leftExity, int rightExitx, int rightExity) {
@@ -64,14 +81,13 @@ public class LowerBoundDetecter {
 				else
 					localLeftMap[x+BOND+1][y+BOND+1] = 0;
 				if(x+rightExitx<rightMap.length&&y+rightExity<rightMap[0].length && (x+rightExitx)>=0 && (y+rightExity)>=0)
-					localRightMap[x+BOND+1][y+BOND+1] = rightMap[x+leftExitx][y+leftExity]==1?1:0;
+					localRightMap[x+BOND+1][y+BOND+1] = rightMap[x+rightExitx][y+rightExity]==1?1:0;
 				else
 					localRightMap[x+BOND+1][y+BOND+1] = 0;
 			}
 		}
 		localLeftMap[BOND+1][BOND+1] = 2;
 		localRightMap[BOND+1][BOND+1] = 2;
-				
 	}
 	
 
@@ -124,7 +140,7 @@ public class LowerBoundDetecter {
 						if(aintViewL[lx][ly]!=1&&aintViewR[rx][ry]!=1){
 							pc[lx][ly][rx][ry] = new PointPair(lx, ly, rx, ry);
 
-							if (printGraph)
+							if (printGraph&&false)
 								System.out.println(pc[lx][ly][rx][ry] + "\t("
 										+ aintViewL[lx][ly] + ","
 										+ aintViewR[rx][ry] + ")");
