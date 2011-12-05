@@ -37,6 +37,13 @@ public class Node {
 		return count;
 	}
 	
+	public int getDir(int target){
+		for(int e = 0; e < 8; e++){
+			if(edges[e] == target) return e+1;
+		}
+		return -1;
+	}
+	
 	public void addEdge(int dir, int target){
 		addEdge(dir, target, (byte)1);
 	}
@@ -92,5 +99,11 @@ public class Node {
 	public int getEdgeWeight(int dir){
 		return edgeWeights[dir-1];
 	}
+
+	public int[] getEdges() {
+		return edges;
+	}
+	
+	
 	
 }
