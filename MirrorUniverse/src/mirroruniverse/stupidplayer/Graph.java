@@ -23,10 +23,9 @@ public class Graph {
 		return V.containsKey(Node.getHash(lx, ly, rx, ry));
 	}
 	
-	//TODO: Complete this!!
-	public TIntArrayList dijkstraShortestPath(int source, int target){
+	public TIntLinkedList dijkstraShortestPath(int source, int target){
 		BinaryMinHeap heap = new BinaryMinHeap();
-		TIntArrayList path = new TIntArrayList();
+		TIntLinkedList path = new TIntLinkedList();
 		TIntIntHashMap pi = new TIntIntHashMap();
 		
 		heap.insert(source, 0);
@@ -49,6 +48,19 @@ public class Graph {
 				}
 			}
 		}
+		
+		if(pi.containsKey(target)){
+			return null;
+		}
+		
+		int i = pi.get(target);
+		int ii = target;
+		
+		while(i != Integer.MIN_VALUE){
+			path.add(V.get(i).getDir(ii));
+		}
+		
+		path.reverse();
 		
 		return path;
 	}
