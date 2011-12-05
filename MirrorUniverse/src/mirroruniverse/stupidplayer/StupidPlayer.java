@@ -16,6 +16,7 @@ public class StupidPlayer implements Player
 	Date lastStep;
 	private static final long TIMELIMIT = 250 * 1000; //250s
 	private int lastTimeUse;
+	private PathFinder pf = new PathFinder();
 	/*
 	 * initially moveList is empty --
 	 * the player selects the best place to move and stores the moves that would take it 
@@ -391,11 +392,15 @@ public class StupidPlayer implements Player
 
 		} else {
 			String nextState="";
-			if (leftExitFound==true && rightExitFound==true) {				
+			if (leftExitFound==true && rightExitFound==true) {	 //bookmark1			
 				//int lowerBound = lb.getLowerBound(leftMap, rightMap, lPlayer_Y_Exit,lPlayer_X_Exit, rPlayer_Y_Exit,rPlayer_X_Exit);
 				// exits known but path not known
 				// go towards max total
 				//System.out.println(lowerBond + "lower bound =================");
+				System.out.println("PF called = " + new Date());
+				System.out.println(" lPlayer_X_Exit "+ lPlayer_X_Exit+" lPlayer_Y_Exit: "+this.lPlayer_Y_Exit);
+				pf.updateGraph(leftMap, rightMap, lPlayer_Y_Position, lPlayer_X_Position, rPlayer_Y_Position, rPlayer_X_Position);
+				System.out.println("PF returned = " + new Date());
 				if (maximumTotalUnknown>0.0 && new Date().getTime() - start.getTime() <= TIMELIMIT-lastTimeUse) {
 					if(justExplore==0) {
 						justExplore=maxJustExplore;
