@@ -10,12 +10,57 @@ import java.util.Scanner;
 public class MirrorUniverse 
 {
 	static Player plrCurrent;
-	
 	public static void main( String[] args )
 	{
+		String strPlayerClass ="";
+		File filPlayersClasses = new File( "player/player.txt" );
+		Scanner scnPlayersClasses = null;
+		String playerName="NONE";
+		try 
+		{
+			scnPlayersClasses = new Scanner( filPlayersClasses );
+		} 
+		catch (FileNotFoundException e1) 
+		{
+			// TODO Auto-generated catch block
+			System.out.println( "Failed to load Players Classes File" );
+			e1.printStackTrace();
+		}
+		while ( scnPlayersClasses.hasNextLine()) 
+		{
+			 strPlayerClass = scnPlayersClasses.nextLine();
+			if ( strPlayerClass.startsWith( "//" ) )
+			{
+				continue;
+			}
+			
+			try 
+			{
+				plrCurrent = ( Player ) Class.forName( strPlayerClass ).newInstance();
+			    playerName=strPlayerClass.substring(strPlayerClass.lastIndexOf(".")+1);
+
+//				mprNew.startNewMapping( intMappingLength );
+			} 
+			catch (ClassNotFoundException e) 
+			{
+				System.out.println( "Problem loading Players' classes" );
+//				log.error("[Configuration] Class not found: " + t);
+			} 
+			catch (InstantiationException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			catch (IllegalAccessException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		FileWriter frtReplay = null;
 		try {
-			frtReplay = new FileWriter( "replays/" + "LastGame" + ".txt" );
+			File file = new File("replays/" + "LastGame_" + playerName+".txt");
+			frtReplay = new FileWriter( file );
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -48,48 +93,7 @@ public class MirrorUniverse
 			e.printStackTrace();
 		}
 		
-		File filPlayersClasses = new File( "player/player.txt" );
-		Scanner scnPlayersClasses = null;
-		try 
-		{
-			scnPlayersClasses = new Scanner( filPlayersClasses );
-		} 
-		catch (FileNotFoundException e1) 
-		{
-			// TODO Auto-generated catch block
-			System.out.println( "Failed to load Players Classes File" );
-			e1.printStackTrace();
-		}
-		while ( scnPlayersClasses.hasNextLine()) 
-		{
-			String strPlayerClass = scnPlayersClasses.nextLine();
-			
-			if ( strPlayerClass.startsWith( "//" ) )
-			{
-				continue;
-			}
-			
-			try 
-			{
-				plrCurrent = ( Player ) Class.forName( strPlayerClass ).newInstance();
-//				mprNew.startNewMapping( intMappingLength );
-			} 
-			catch (ClassNotFoundException e) 
-			{
-				System.out.println( "Problem loading Players' classes" );
-//				log.error("[Configuration] Class not found: " + t);
-			} 
-			catch (InstantiationException e) 
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} 
-			catch (IllegalAccessException e) 
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+
 		
 		int intStep = 0;
 		while ( !mumMapL.getMapOver() || !mumMapR.getMapOver() )

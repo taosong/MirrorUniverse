@@ -1,0 +1,7 @@
+min delay on full sight
+7, 4, 20, -1, maps/Board1_L.txt, 3
+7, 4, 20, -1, maps/Board1_R.txt, 3
+
+still moves, better exploration needed
+7, 4, 2, -1, maps/CircularMaze_Left.txt, 3
+7, 4, 2, -1, maps/CircularMaze_Right.txt, 3
