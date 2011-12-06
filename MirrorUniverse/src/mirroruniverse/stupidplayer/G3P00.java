@@ -21,9 +21,10 @@ public class G3P00 {
 		
 		TIntList queue = new TIntLinkedList();
 		
-		
-		queue.add(Node.getHash((byte)(startlx-100), (byte)(startly-100),
-				(byte)(startrx-100), (byte)(startry-100)));
+		int source = Node.getHash((byte)(startlx-100), (byte)(startly-100),
+				(byte)(startrx-100), (byte)(startry-100));
+		queue.add(source);
+		parent.put(source, Integer.MIN_VALUE);
 		int retVal = -1;
 		
 		breakLabel:
