@@ -20,9 +20,11 @@ public class G3P00 {
 			final int exitlx, final int exitly, final int exitrx, final int exitry){
 		
 		TIntList queue = new TIntLinkedList();
+		printMaps(leftView, rightView);
 		
 		int source = Node.getHash((byte)(startlx-100), (byte)(startly-100),
 				(byte)(startrx-100), (byte)(startry-100));
+		System.out.println("Source: {("+startly+","+startlx+")("+startry+","+startrx+")}");
 		queue.add(source);
 		parent.put(source, Integer.MIN_VALUE);
 		int retVal = -1;
@@ -78,6 +80,9 @@ public class G3P00 {
 					// If we have visited this node, continue
 					if(parent.containsKey(v)) continue;
 					
+					System.out.println("Opening node: {("+iprime+","+jprime+")("+kprime+","+lprime+")} - ("+
+							leftView[iprime][jprime]+","+rightView[kprime][lprime]+")");
+					
 					// Make u the parent of v and add v to the queue - classic BFS
 					parent.put(v, u);
 					queue.add(v);
@@ -98,8 +103,9 @@ public class G3P00 {
 		if(parent.containsKey(v)){
 			Stack<Integer> path = new Stack<Integer>();
 			while(parent.get(v) != Integer.MIN_VALUE){
-				int u = parent.get(v);
-				path.push(getDir(u, v));
+				System.out.println("Adding dir: "+getDir(parent.get(v), v));
+				path.push(getDir(parent.get(v), v));
+				v = parent.get(v);
 			}
 			List<Integer> p = new LinkedList<Integer>();
 			while(!path.isEmpty()){
@@ -108,12 +114,16 @@ public class G3P00 {
 			return p;
 		}
 		
-		
+		System.out.println("No path found - returning null");
 		return null;
 				
 	}
 	
-	
+	public List<Integer> bfs2d(int[][] view, int x, int y, int ex, int ey){
+		
+		
+		return null;
+	}
 	
 	private int getDir(int src, int dest){
 		byte[] srcBytes = Node.getBytes(src);
@@ -129,22 +139,32 @@ public class G3P00 {
 		if (deltaX > 0) {
 			return x + deltaX < len ? x + deltaX : xprime;
 		} else {
-			return x + deltaX > 0 ? x + deltaX : xprime;
+			return x + deltaX >= 0 ? x + deltaX : xprime;
 		}
-	}	
+	}
 	
+	public void printMaps(int[][] leftView, int[][] rightView){
+		System.out.println("Left View: ");
+		printView(leftView);
+		System.out.println("Right View: ");
+		printView(rightView);
+	}
+	
+	public void printView(int[][] leftView){
+		for(int i=0; i<leftView.length; i++){
+			for(int j=0; j<leftView[0].length; j++){
+				System.out.print(leftView[i][j]+" ");
+			}
+			System.out.println();
+		}
+	}
 	
 	public static void main(String[] args) {
-		Stack<Integer> stk = new Stack<Integer>();
-		stk.push(1);
-		stk.push(2);
-		stk.push(3);
-		stk.push(4);
-		
-		List<Integer> lst = new LinkedList<Integer>(stk);
-		for(Integer i : lst){
-			System.out.println(i);
-		}
+		int[][] leftView = {{1,1,0},{0,0,0},{2,0,0}};
+		int[][] rightView = {{1,1,0},{0,0,0},{2,0,0}};
+		G3P00 g3p00 = new G3P00();
+		List<Integer> path = g3p00.bfs(leftView, rightView, 0,2,0,2,0,2,0,2);
+		System.out.println(path);
 	}
 	
 	public void printViews(int[][] left, int[][] right){
