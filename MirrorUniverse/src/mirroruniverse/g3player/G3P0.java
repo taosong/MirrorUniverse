@@ -1,5 +1,6 @@
 package mirroruniverse.g3player;
 
+import gnu.trove.list.linked.TIntLinkedList;
 import mirroruniverse.sim.Player;
 import mirroruniverse.stupidplayer.Graph;
 import mirroruniverse.stupidplayer.Node;
@@ -37,6 +38,10 @@ public class G3P0 implements Player {
 		return target;
 	}
 	
+	public void buidGraphOfWorld(int[][] leftWorld, int rightWorld, int clx, int cly, int crx, int cry){
+		
+	}
+	
 	private void buildGraph(int[][] leftView, int[][] rightView){
 		// add all vertices and set edges
 		for (int i = 0; i < leftView.length; i++)
@@ -49,8 +54,8 @@ public class G3P0 implements Player {
 							// do something special here
 							// like setting the exit
 							if(exit == null) exit = graph.addNode(
-									getGlobalCoord(j, offly, transLtX),
-									getGlobalCoord(i, offlx, transLtY),
+									getGlobalCoord(j, offlx, transLtX),
+									getGlobalCoord(i, offly, transLtY),
 									getGlobalCoord(l, offrx, transRtX),
 									getGlobalCoord(k, offry, transRtY),
 									(byte)2);
@@ -58,8 +63,8 @@ public class G3P0 implements Player {
 						
 						if (leftView[i][j] != 1 && rightView[k][l] != 1) {
 							Node current = graph.addNode(
-									getGlobalCoord(j, offly, transLtX),
-									getGlobalCoord(i, offlx, transLtY),
+									getGlobalCoord(j, offlx, transLtX),
+									getGlobalCoord(i, offly, transLtY),
 									getGlobalCoord(l, offrx, transRtX),
 									getGlobalCoord(k, offry, transRtY),
 									(byte)0);
@@ -111,6 +116,10 @@ public class G3P0 implements Player {
 				}
 			}
 		}
+	}
+	
+	private TIntLinkedList endGame(int[][] leftView, int[][] rightView){
+		return null;
 	}
 	
 	private void setOffsets(int[][] leftView, int[][] rightView){

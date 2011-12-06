@@ -4,6 +4,7 @@ import gnu.trove.list.linked.TIntLinkedList;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.TIntSet;
 
 public class Graph {
 	
@@ -79,5 +80,17 @@ public class Graph {
 		
 		return path;
 	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		Node[] nodes = V.values(new Node[V.size()]);
+		for(Node node : nodes){
+			sb.append(node);
+		}
+		return sb.toString();
+	}
+	
+	
 
 }

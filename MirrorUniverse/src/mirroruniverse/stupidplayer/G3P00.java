@@ -32,6 +32,13 @@ public class G3P00 {
 			
 	}
 	
+	
+	public void buildGraphOfWorld(int[][] leftView, int[][] rightView, int currPosLX, int currPosLY, int currPosRX, int currPosRY){
+		
+	}
+	
+	
+	
 	public void printViews(int[][] left, int[][] right){
 		if (debug) {
 			System.out.println("Left View:");

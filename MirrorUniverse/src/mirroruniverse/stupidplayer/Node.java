@@ -71,7 +71,13 @@ public class Node {
 
 	@Override
 	public String toString() {
-		return "{("+lx+","+ly+");("+rx+","+ry+")}";
+		StringBuffer sb = new StringBuffer();
+		sb.append("{("+lx+","+ly+");("+rx+","+ry+");"+nature+"} - [");
+		for(int edge : edges){
+			sb.append(Integer.toHexString(edge)+" ");
+		}
+		sb.append("]\n");
+		return sb.toString();
 	}
 
 	public byte getLx() {

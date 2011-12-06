@@ -19,18 +19,40 @@ public class PathFinder {
 	protected TIntLinkedList path;
 	
 	Node exit = null;
+	boolean debug = true;
 
 	public int updateGraph(int[][] leftView, int[][] rightView, int startly, int startlx,int startry, int startrx) {
 		
 		if(offlx==0){
-			setOffsets(leftView, rightView);
+			setOffsets(startlx, startly, startrx, startry);
 		}
+		//printViews(leftView, rightView);
+		
 		buildGraph(leftView, rightView);
-
+		System.out.println(graph.toString());
 		int source = Node.getHash((byte)startlx, (byte)startly, (byte)startrx, (byte)startry);
 		int target = Node.getHash(exit.getLx(), exit.getLy(), exit.getRx(), exit.getRy());
 		path = graph.dijkstraShortestPath(source, target);
 		return 0;
+	}
+	
+	public void printViews(int[][] left, int[][] right){
+		if (debug) {
+			System.out.println("Left View:");
+			for (int i = 0; i < left.length; i++) {
+				for (int j = 0; j < left.length; j++)
+					System.out.print(left[i][j] + " ");
+				System.out.println();
+			}
+
+			System.out.println("Right View:");
+			for (int i = 0; i < right.length; i++) {
+				for (int j = 0; j < right.length; j++)
+					System.out.print(right[i][j] + " ");
+				System.out.println();
+			}
+		}
+
 	}
 		
 	private void buildGraph(int[][] leftView, int[][] rightView){
@@ -38,12 +60,14 @@ public class PathFinder {
 		for (int i = 0; i < leftView.length; i++)
 			for (int j = 0; j < leftView[0].length; j++)
 				for (int k = 0; k < rightView.length; k++)
-					for (int l = 0; l < rightView[0].length; l++) {				
+					for (int l = 0; l < rightView[0].length; l++) {
+						
+						if(leftView[i][j]==4 || rightView[k][l]==4)continue;
 						
 						if(leftView[i][j] == 2 && rightView[k][l] == 2){
 							// do something special here
 							// like setting the exit
-							if(DEBUG) System.out.println("LX: "+exit.getLx()+" LY: "+exit.getLy());
+							//if(DEBUG) System.out.println("LX: "+exit.getLx()+" LY: "+exit.getLy());
 							if(exit == null) exit = graph.addNode(
 									getGlobalCoord(j, offly, transLtX),
 									getGlobalCoord(i, offlx, transLtY),
@@ -109,11 +133,15 @@ public class PathFinder {
 		}
 	}
 	
-	private void setOffsets(int[][] leftView, int[][] rightView){
-		offlx = (byte) ( leftView[0].length/  2);
-		offly = (byte) ( leftView.length/  2);
-		offrx = (byte) ( rightView[0].length/  2);
-		offry = (byte) ( rightView.length/  2);
+	private void setOffsets(int olx, int oly, int rlx, int rly){
+		Node.checkRange(olx);
+		Node.checkRange(oly);
+		Node.checkRange(rlx);
+		Node.checkRange(rly);
+		offlx = (byte) olx;
+		offly = (byte) oly;
+		offrx = (byte) rlx;
+		offry = (byte) rly;
 	}
 	
 	private int incr(int len, int x, int deltaX, int xprime) {
