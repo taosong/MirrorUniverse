@@ -12,7 +12,7 @@ public class StupidPlayer implements Player
 	LowerBoundDetecter lb = new LowerBoundDetecter();
 	int currentLowerBond=Integer.MAX_VALUE;
 	int justExplore=0;
-	int maxJustExplore=20;
+	int maxJustExplore=50;
 	/*
 	 * initially moveList is empty --
 	 * the player selects the best place to move and stores the moves that would take it 
@@ -390,6 +390,7 @@ public class StupidPlayer implements Player
 				state = new HashMap<String,Integer>();
 				freeMemory();
 				stateKey=lPlayer_X_Position+","+lPlayer_Y_Position+","+rPlayer_X_Position+","+rPlayer_Y_Position;
+				//System.out.println("current position "+stateKey);
 				state.put(stateKey, 900);
 				maximumTotalUnknown=browse(lPlayer_X_Position,lPlayer_Y_Position,rPlayer_X_Position,rPlayer_Y_Position,true);
 
@@ -398,15 +399,16 @@ public class StupidPlayer implements Player
 				currentLowerBond = lb.getLowerBound(leftMap, rightMap, lPlayer_Y_Exit,lPlayer_X_Exit, rPlayer_Y_Exit,rPlayer_X_Exit);
 				//System.out.println(currentLowerBond + " lower bound =================");
 				int lowestDelay=minSingleMovesList.size();
-				//	System.out.println(lowestDelay + " lowestDelay  ================="+minSingleMovesList);
+				//System.out.println(lowestDelay + " lowestDelay  ================="+minSingleMovesList);
 				//System.out.println(maximumTotalUnknown + " maximumTotalUnknown  =================");
 				if (lowestDelay<=currentLowerBond || maximumTotalUnknown<=0) {
+					//if ( maximumTotalUnknown<=0) {
 					String[] arrayA=bestDiffExitState.split(",");
 					int x1=Integer.parseInt(arrayA[0]); int y1=Integer.parseInt(arrayA[1]); 
 					int x2=Integer.parseInt(arrayA[2]); int y2=Integer.parseInt(arrayA[3]);
 					movesList=new ArrayList<Integer>();
 					updateMovesList(x1,y1,x2,y2);
-					//	System.out.println(lowestDelay + " movesList  ================="+movesList);
+					//System.out.println(lowestDelay + " movesList  ================="+movesList);
 					//System.out.println(lowestDelay + " minSingleMovesList  ================="+minSingleMovesList);
 					movesList.addAll(minSingleMovesList);
 					//if(debug)
@@ -586,11 +588,15 @@ public class StupidPlayer implements Player
 						// if the control crosses this line then it means that both the exits ae known and 0 delay solution is not possible
 						if(rightNext==2  ) {
 							singleStepsRequired=countStepsToExit("left",xm1,ym1);
-							if (debug) { System.out.println("# right at exit "+xm2+","+ym2); System.out.println("# left at  "+xm1+","+ym1);System.out.println("# singleStepsRequired   "+singleStepsRequired);}
+							if (debug) { 
+							System.out.println("# right at exit "+xm2+","+ym2); System.out.println("# left at  "+xm1+","+ym1);System.out.println("# singleStepsRequired   "+singleStepsRequired);
+								}
 						}
 						if(leftNext==2 ) {
 							singleStepsRequired=countStepsToExit("right",xm2,ym2);
-							if(debug) { System.out.println("# left at exit "+xm1+","+ym1); System.out.println("# right at  "+xm2+","+ym2);System.out.println("# singleStepsRequired   "+singleStepsRequired);}
+								if(debug) {
+							System.out.println("# left at exit "+xm1+","+ym1); System.out.println("# right at  "+xm2+","+ym2);System.out.println("# singleStepsRequired   "+singleStepsRequired);
+							}
 						}
 						if(singleStepsRequired<minSingleStepsRequired) {
 							minSingleStepsRequired=singleStepsRequired; minSingleMovesList.clear(); minSingleMovesList.addAll(singleMovesList);
@@ -610,7 +616,6 @@ public class StupidPlayer implements Player
 					if (!((rightNext==2 &&leftNext!=2) || (rightNext!=2 &&leftNext==2))) {
 						double leftValue=10000.0*leftUknown/distance;
 						double rightValue=10000.0*rightUknown/distance;
-					
 						double totalValue=leftValue+rightValue;
 						if(leftValue>maxLeftScore)    { maxLeftScore=leftValue  ; stateBestLeft=stateName;}
 						if(rightValue>maxRightScore)  { maxRightScore=rightValue; stateBestRight=stateName;}
@@ -625,7 +630,8 @@ public class StupidPlayer implements Player
 				}
 				if (exitReached())
 					return maxTotalScore;
-				queueElements.add(stateName);
+				if (!((rightNext==2 &&leftNext!=2) || (rightNext!=2 &&leftNext==2)))
+					queueElements.add(stateName);
 				/// queueing the new state to be explored to implement BFS like search 
 			}
 		}
