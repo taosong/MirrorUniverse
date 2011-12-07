@@ -119,10 +119,99 @@ public class G3P00 {
 				
 	}
 	
-	public List<Integer> bfs2d(int[][] view, int x, int y, int ex, int ey){
+	public List<Integer> bfs2d(int[][] view, int x, int y, int ex, int ey, boolean isLeft){
 		
+		TIntList queue = new TIntLinkedList();
+		TIntIntHashMap pi = new TIntIntHashMap();
+		
+		int exit = Integer.MIN_VALUE;
+		
+		int source = pack(x,y);
+		queue.add(source);
+		pi.put(source, Integer.MIN_VALUE);
+		
+		breakLabel:
+		while(!queue.isEmpty()){
+			int u = queue.removeAt(0);
+			short[] ushorts = unpack(u);
+			int j = ushorts[0];
+			int i = ushorts[1];
+			
+			for (int deltaX = -1; deltaX < 2; deltaX++)
+				for (int deltaY = -1; deltaY < 2; deltaY++) {
+					
+					int iprime = -1, jprime = -1, kprime = -1, lprime = -1;
+					
+					if (deltaX == 0 && deltaY == 0)continue;
+					
+					iprime = incr(view.length, i, deltaY, iprime);
+					jprime = incr(view[0].length, j, deltaX, jprime);
+					
+					// If no increment is possible, continue
+					if (iprime == -1 || jprime == -1) continue;
+
+					// If you have hit an obstacle then continue
+					if (view[iprime][jprime] == 1) continue;
+					
+					// If this move takes us into unexplored territory, then continue
+					if(view[iprime][jprime] == 4) continue;
+
+					int v = pack(jprime, iprime);
+					
+					// If we have visited this node earlier, continue
+					if(pi.containsKey(v)) continue;
+					
+					System.out.println("Opening node: ("+iprime+","+jprime+") - ("+view[iprime][jprime]+")");
+					
+					// Make u the parent of v and add v to the queue - classic BFS
+					pi.put(v, u);
+					queue.add(v);
+					
+					int state;
+					
+					if(isLeft){
+						state = Node.getHash((byte)(jprime - 100), (byte)(iprime - 100), (byte)(ex-100), (byte)(ey-100));
+					}else{
+						state = Node.getHash((byte)(ex-100), (byte)(ey-100), (byte)(jprime - 100), (byte)(iprime - 100));
+					}
+					
+					if (parent.containsKey(state)){
+						// You have reached the exit state!!
+						exit = v;
+						break breakLabel;
+					}
+					
+				}	
+		}
+		
+		if(exit != Integer.MIN_VALUE){
+			int v = exit;
+			List<Integer> path = new LinkedList<Integer>();
+			while(pi.get(v) != Integer.MIN_VALUE){
+				int u = pi.get(v);
+				path.add(getDir2d(u, v));
+				v = u;
+			}
+			return path;
+		}
 		
 		return null;
+	}
+	
+	private int pack(int x, int y){
+		return (x & 0xFFFF)+((y & 0xFFFF)<<16);
+	}
+	
+	private short[] unpack(int x){
+		return new short[]{(short) x, (short)(x >>> 16)};
+	}
+	
+	private int getDir2d(int u, int v){
+		short[] uS = unpack(u);
+		short[] vS = unpack(v);
+		int dx = uS[0] - vS[0];
+		int dy = vS[1] - vS[1];
+		return dirs[dx+1][dy+1];
 	}
 	
 	private int getDir(int src, int dest){
