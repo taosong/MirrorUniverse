@@ -15,10 +15,11 @@ public class G3P00 {
 	private static final int[][] dirs = {{4,5,6},{3,0,7},{2,1,8}};
 	int exit = Integer.MIN_VALUE;
 	
-	public List<Integer> bfs(final int[][] leftView, final int[][] rightView,
+	public int bfs(final int[][] leftView, final int[][] rightView,
 			final int startly, final int startlx, final int startry, final int startrx,
-			final int exitlx, final int exitly, final int exitrx, final int exitry){
+			final int exitlx, final int exitly, final int exitrx, final int exitry, List<Integer> path){
 		
+		path.clear();
 		TIntList queue = new TIntLinkedList();
 		printMaps(leftView, rightView);
 		
@@ -101,21 +102,35 @@ public class G3P00 {
 				(byte)(exitrx-100), (byte)(exitry-100));
 		
 		if(parent.containsKey(v)){
-			Stack<Integer> path = new Stack<Integer>();
+			Stack<Integer> stk = new Stack<Integer>();
 			while(parent.get(v) != Integer.MIN_VALUE){
 				System.out.println("Adding dir: "+getDir(parent.get(v), v));
-				path.push(getDir(parent.get(v), v));
+				stk.push(getDir(parent.get(v), v));
 				v = parent.get(v);
 			}
-			List<Integer> p = new LinkedList<Integer>();
-			while(!path.isEmpty()){
-				p.add(path.pop());
+			while(!stk.isEmpty()){
+				path.add(stk.pop());
 			}
-			return p;
+			return retVal;
 		}
 		
-		System.out.println("No path found - returning null");
-		return null;
+		System.out.println("No perfect solution found");
+		
+		List<Integer> rightExitFirst = bfs2d(leftView, startlx, startly, exitrx, exitry, true);
+		List<Integer> leftExitFirst = bfs2d(rightView, startrx, startry, exitlx, exitly, false);
+		
+		assert(rightExitFirst != null && leftExitFirst != null);
+		
+		if(leftExitFirst.size() < rightExitFirst.size()){
+			path.addAll(leftExitFirst);
+			retVal = leftExitFirst.size();
+		}
+		else{
+			path.addAll(rightExitFirst);
+			retVal = rightExitFirst.size();
+		}
+		
+		return retVal;
 				
 	}
 	
@@ -252,7 +267,8 @@ public class G3P00 {
 		int[][] leftView = {{1,1,0},{0,0,0},{2,0,0}};
 		int[][] rightView = {{1,1,0},{0,0,0},{2,0,0}};
 		G3P00 g3p00 = new G3P00();
-		List<Integer> path = g3p00.bfs(leftView, rightView, 0,2,0,2,0,2,0,2);
+		List<Integer> path = new LinkedList<Integer>(); 
+		g3p00.bfs(leftView, rightView, 0,2,0,2,0,2,0,2, path);
 		System.out.println(path);
 	}
 	
