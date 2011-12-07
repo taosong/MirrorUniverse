@@ -91,6 +91,7 @@ public class G3P00 {
 					// If you find that both are able to exit, add parent pointers and mark as visited and break
 					// out of loop
 					if (leftView[iprime][jprime] == 2 && rightView[kprime][lprime] == 2){
+						System.out.println("Perfect Solution found!!");
 						assert(iprime == exitlx && jprime == exitly && kprime == exitrx && lprime == exitry);
 						retVal = 0;
 						break breakLabel;
@@ -265,7 +266,7 @@ public class G3P00 {
 	
 	public static void main(String[] args) {
 		int[][] leftView = {{1,1,0},{0,0,0},{2,0,0}};
-		int[][] rightView = {{1,1,0},{0,0,0},{2,0,0}};
+		int[][] rightView = {{1,1,0},{0,0,0},{0,2,0}};
 		G3P00 g3p00 = new G3P00();
 		List<Integer> path = new LinkedList<Integer>(); 
 		g3p00.bfs(leftView, rightView, 0,2,0,2,0,2,0,2, path);
