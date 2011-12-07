@@ -387,7 +387,7 @@ public class PathFinder implements Player
 			if(lowestDelay<=currentLowerBond || maximumTotalUnknown <=0) {
 				movesList = tempList;
 				keepExploring=false;
-				System.out.println("temp list = "+tempList);
+				//System.out.println("temp list = "+tempList);
 			}
 			System.out.println("bfs returned " + new Date());
 		} 

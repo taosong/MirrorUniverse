@@ -12,10 +12,11 @@ public class BFS {
 	int leftExitAlone = Integer.MIN_VALUE;
 	int rightExitAlone = Integer.MIN_VALUE;
 	
-	boolean debug = true;
+	boolean debug = false;
 	final TIntIntHashMap parent = new TIntIntHashMap();
 	private static final int[][] dirs = {{4,5,6},{3,0,7},{2,1,8}};
 	int exit = Integer.MIN_VALUE;
+	private boolean printMaps = false;
 	
 	public int bfs(final int[][] leftView, final int[][] rightView,
 			final int startly, final int startlx, final int startry, final int startrx,
@@ -41,10 +42,13 @@ public class BFS {
 			int i = bytes[1] + 100;
 			int l = bytes[2] + 100;
 			int k = bytes[3] + 100;
+			if(leftView[i][j] == 2 || rightView[k][l] == 2) continue;
+
 			
+			label:
 			for (int deltaX = -1; deltaX < 2; deltaX++)
 				for (int deltaY = -1; deltaY < 2; deltaY++) {
-
+					
 					if (deltaX == 0 && deltaY == 0)continue;
 
 					int iprime = -1, jprime = -1, kprime = -1, lprime = -1;
@@ -84,7 +88,8 @@ public class BFS {
 					if(parent.containsKey(v)) continue;
 					
 					if(debug)System.out.println("Opening node: {("+iprime+","+jprime+")("+kprime+","+lprime+")} - ("+
-							leftView[iprime][jprime]+","+rightView[kprime][lprime]+")");
+							leftView[iprime][jprime]+","+rightView[kprime][lprime]+")"+
+							" ----- {("+i+","+j+")("+k+","+l+"");
 					
 					// Make u the parent of v and add v to the queue - classic BFS
 					parent.put(v, u);
@@ -107,6 +112,8 @@ public class BFS {
 			if(debug)System.out.println("parent" + parent);
 			if(debug)System.out.println("key" + v);
 			getPathToRoot(parent, v, path);
+			if(debug)
+				System.out.println(":::::::::::::return perfect = " + retVal);
 			return retVal;
 		}
 		
@@ -131,7 +138,7 @@ public class BFS {
 		}
 		
 		if(debug)
-			System.out.println(retVal);
+			System.out.println(":::::::::::::return = " + retVal);
 		return retVal;
 				
 	}
@@ -275,7 +282,7 @@ public class BFS {
 	}
 	
 	public void printMaps(int[][] leftView, int[][] rightView){
-		if(!debug)
+		if(printMaps )
 			return;
 		
 		System.out.println("Left View: ");
@@ -306,7 +313,7 @@ public class BFS {
 				            {1,1,1,0,0,0},
 				            {1,1,0,0,0,1},
 				            {1,1,0,0,0,1},
-				            {1,1,0,0,1,1},
+				            {1,1,0,0,4,4},
 				            {1,1,0,1,0,2}};
 		BFS bfs = new BFS();
 		List<Integer> path = new LinkedList<Integer>(); 
