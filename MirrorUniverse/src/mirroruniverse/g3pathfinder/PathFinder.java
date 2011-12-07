@@ -8,7 +8,7 @@ import mirroruniverse.sim.Player;
 public class PathFinder implements Player
 {
 	public static final boolean DEBUG =false;
-	public static final boolean LBPRINT = true;
+	public static final boolean LBPRINT = false;
 	
 	int round=0;
 	LowerBoundDetecter lb = new LowerBoundDetecter();
@@ -385,7 +385,7 @@ public class PathFinder implements Player
 			if((lowestDelay<=currentLowerBond || maximumTotalUnknown <=0 || timeout) && lowestDelay!=-1) {
 				movesList = tempList;
 				keepExploring=false;
-				System.out.println("temp list = "+tempList);
+				//System.out.println("temp list = "+tempList);
 			}
 			if (LBPRINT)System.out.println("bfs returned " + new Date());
 		} 
@@ -601,8 +601,13 @@ public class PathFinder implements Player
 				//rightNext=rightMap[ym2][xm2];
 				//System.out.println(" stateKey guests  "+stateKey+" leftNext="+leftNext+" rightNext="+rightNext);
 
-				if(leftNext==2 && leftExitFound==false) { leftExitFound=true; System.out.println("\t\t\t\t\t\tleftExitFound "+xm1+","+ym1);}
-				if(rightNext==2 && rightExitFound==false) {rightExitFound=true;System.out.println("\t\t\t\t\t\trightExitFound "+xm2+","+ym2);}
+				if(leftNext==2 && leftExitFound==false) {
+					leftExitFound=true; 
+					if(DEBUG)System.out.println("\t\t\t\t\t\tleftExitFound "+xm1+","+ym1);
+				}
+				if(rightNext==2 && rightExitFound==false) {rightExitFound=true;
+					if(DEBUG)System.out.println("\t\t\t\t\t\trightExitFound "+xm2+","+ym2);
+				}
 
 				if(leftNext==1 ) { xm1=x1;ym1=y1;leftSame++;}
 				if(rightNext==1 )  {xm2=x2;ym2=y2;rightSame++;}

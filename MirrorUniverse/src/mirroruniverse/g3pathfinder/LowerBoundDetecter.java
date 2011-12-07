@@ -149,7 +149,7 @@ public class LowerBoundDetecter {
 						}
 						if (aintViewL[lx][ly] == 2 && aintViewR[rx][ry] == 2) {
 							this.exit = pc[lx][ly][rx][ry];
-							System.out.println("=====exit========" + this.exit);
+							//System.out.println("=====exit========" + this.exit);
 						}
 					}
 				}
