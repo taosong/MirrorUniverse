@@ -1,18 +1,25 @@
-package mirroruniverse.stupidplayer;
+package mirroruniverse.g3pathfinder;
 
 import java.util.*;
 
 import mirroruniverse.sim.MUMap;
 import mirroruniverse.sim.Player;
 
-public class StupidPlayer implements Player
+public class PathFinder implements Player
 {
-	boolean debug =false;
+	public static final boolean DEBUG =false;
+	public static final boolean LBPRINT = true;
+	
 	int round=0;
 	LowerBoundDetecter lb = new LowerBoundDetecter();
+	BFS bfs = new BFS();
+	Date start;
+	public static final int LIMIT = 270 * 1000;
+
 	int currentLowerBond=Integer.MAX_VALUE;
 	int justExplore=0;
 	int maxJustExplore=50;
+	double maximumTotalUnknown=Double.MAX_VALUE;
 	/*
 	 * initially moveList is empty --
 	 * the player selects the best place to move and stores the moves that would take it 
@@ -54,7 +61,7 @@ public class StupidPlayer implements Player
 	 * This is the maximum sidelength of the map on which it will work
 	 * it has to be hrdcoded to 100 as per the problem statement
 	 */
-	int maxMapSideLength=50;
+	int maxMapSideLength=150;
 
 	/*
 	 * this is the map size which we will consider  
@@ -135,6 +142,7 @@ public class StupidPlayer implements Player
 
 
 	public static final int[][] movesArray = { { 0, 0 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 },  { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 } };
+	
 
 
 
@@ -145,6 +153,7 @@ public class StupidPlayer implements Player
 		//debug=false;
 		//System.out.println(java.lang.Runtime.getRuntime().maxMemory()); 
 		if( round ==1) {
+			start = new Date();
 			singleMovesList=new ArrayList<Integer>();
 			minSingleMovesList=new ArrayList<Integer>();
 			movesList=new ArrayList<Integer>();
@@ -179,7 +188,7 @@ public class StupidPlayer implements Player
 		}
 
 		lastMove=movesList.remove(0);
-		if (debug) {
+		if (DEBUG) {
 			System.out.println("\t\t\t*****round "+round+"lastMove "+lastMove+"  movesList="+movesList);
 			System.out.println("lastMove "+lastMove);
 			System.out.println("movesList "+movesList);
@@ -208,7 +217,7 @@ public class StupidPlayer implements Player
 		int lPlayer_Y_Position_New=lPlayer_Y_Position+yShiftLeft;
 		int rPlayer_X_Position_New=rPlayer_X_Position+xShiftRight;
 		int rPlayer_Y_Position_New=rPlayer_Y_Position+yShiftRight;
-		if (debug) 
+		if (DEBUG) 
 			System.out.println("\trightMap "+rPlayer_Y_Position+"-"+rPlayer_X_Position+"="+rightMap[rPlayer_Y_Position][rPlayer_X_Position]);
 
 		if( leftExited ||leftMap[lPlayer_Y_Position_New][lPlayer_X_Position_New]==1 ) {
@@ -227,12 +236,12 @@ public class StupidPlayer implements Player
 			rPlayer_Y_Position=rPlayer_Y_Position_New;
 		}
 		if(leftMap[lPlayer_Y_Position_New][lPlayer_X_Position_New]==2)  {
-			if (debug) 
+			if (DEBUG) 
 				System.out.println("Exitting in left map in round "+round+" at "+lPlayer_X_Position_New+","+lPlayer_Y_Position_New);
 			leftExited=true;
 		}
 		if(rightMap[rPlayer_Y_Position_New][rPlayer_X_Position_New]==2) {
-			if (debug) 
+			if (DEBUG) 
 				System.out.println("Exitting in right map in round "+round+" at "+rPlayer_X_Position_New+","+rPlayer_Y_Position_New);
 			rightExited=true;
 		}
@@ -287,7 +296,7 @@ public class StupidPlayer implements Player
 				if (aintViewL[y][x]==2) {
 					if(leftExitPassed==false) {
 						//if(debug)
-						System.out.println("\t\t\t\t\t\tleftExitPassed "+xIndex+","+yIndex);
+						if (DEBUG)System.out.println("\t\t\t\t\t\tleftExitPassed "+xIndex+","+yIndex);
 						leftExitPassed=true;
 						lPlayer_X_Exit=xIndex;lPlayer_Y_Exit=yIndex; 
 					}
@@ -309,7 +318,7 @@ public class StupidPlayer implements Player
 				if (aintViewR[y][x]==2) {
 					if(rightExitPassed==false) {
 						//if(debug)
-						System.out.println("\t\t\t\t\t\trightExitPassed "+xIndex+","+yIndex);
+						if (DEBUG)System.out.println("\t\t\t\t\t\trightExitPassed "+xIndex+","+yIndex);
 						rightExitPassed=true;
 						rPlayer_X_Exit=xIndex;rPlayer_Y_Exit=yIndex; 
 					}
@@ -319,7 +328,7 @@ public class StupidPlayer implements Player
 			}
 			//System.out.println("");
 		}
-		if (debug) { 
+		if (DEBUG) { 
 
 			System.out.println("deltaX="+deltaX);
 			System.out.println("deltaY="+deltaY);
@@ -361,107 +370,103 @@ public class StupidPlayer implements Player
 			movesList.addAll(minSingleMovesList);
 			return;
 		}
-		state.clear();
-		state = new HashMap<String,Integer>();
+		boolean keepExploring=true;
+		if (leftExitPassed && rightExitPassed) { 
 
-		String stateKey=lPlayer_X_Position+","+lPlayer_Y_Position+","+rPlayer_X_Position+","+rPlayer_Y_Position;
-		state.put(stateKey, 900);
-		//stateDistance[lPlayer_X_Position][lPlayer_Y_Position][rPlayer_X_Position][rPlayer_Y_Position]=0;
-		double maximumTotalUnknown=browse(lPlayer_X_Position,lPlayer_Y_Position,rPlayer_X_Position,rPlayer_Y_Position,false);
-		if(debug)
-			System.out.println("maximumTotalUnknown  ="+maximumTotalUnknown);
+			//movesList=new ArrayList<Integer>();
+			if (DEBUG)System.out.println("bfs called " + new Date());
+			ArrayList<Integer> tempList =new ArrayList<Integer>();
+			currentLowerBond = lb.getLowerBound(leftMap, rightMap, lPlayer_Y_Exit,lPlayer_X_Exit, rPlayer_Y_Exit,rPlayer_X_Exit);
+			int lowestDelay=bfs.bfs(leftMap, rightMap, lPlayer_Y_Position, lPlayer_X_Position, rPlayer_Y_Position,
+					rPlayer_X_Position, lPlayer_X_Exit, lPlayer_Y_Exit, rPlayer_X_Exit, rPlayer_Y_Exit, tempList);
 
-		movesList=new ArrayList<Integer>();
-		boolean movesListSet=false;
-		if (exitReached()) {
-			updateMovesList(lPlayer_X_Exit,lPlayer_Y_Exit,rPlayer_X_Exit,rPlayer_Y_Exit);
-			if(debug) {
-				System.out.println("next state chosen  as exit");
-				System.out.println("movesList"+movesList);	
-				System.out.println("exit location "+lPlayer_X_Exit+","+lPlayer_Y_Exit+"---"+rPlayer_X_Exit+","+rPlayer_Y_Exit);	
-				printMaps();
+			if (LBPRINT)System.out.println("lowestDelay " + lowestDelay + " low bound detecter " + currentLowerBond);
+			boolean timeout = new Date().getTime() - start.getTime() > LIMIT;
+			if((lowestDelay<=currentLowerBond || maximumTotalUnknown <=0 || timeout) && lowestDelay!=-1) {
+				movesList = tempList;
+				keepExploring=false;
+				System.out.println("temp list = "+tempList);
 			}
-			movesListSet=true;
+			if (LBPRINT)System.out.println("bfs returned " + new Date());
+		} 
 
-		} else {
-			String nextState="";
-			if (leftExitFound==true && rightExitFound==true) {
-				state.clear();
-				state = new HashMap<String,Integer>();
-				freeMemory();
-				stateKey=lPlayer_X_Position+","+lPlayer_Y_Position+","+rPlayer_X_Position+","+rPlayer_Y_Position;
-				//System.out.println("current position "+stateKey);
-				state.put(stateKey, 900);
-				maximumTotalUnknown=browse(lPlayer_X_Position,lPlayer_Y_Position,rPlayer_X_Position,rPlayer_Y_Position,true);
+		if (keepExploring){
+			state.clear();
+			state = new HashMap<String,Integer>();
 
-				// exits known but path not known
-				// go towards max total
-				currentLowerBond = lb.getLowerBound(leftMap, rightMap, lPlayer_Y_Exit,lPlayer_X_Exit, rPlayer_Y_Exit,rPlayer_X_Exit);
-				//System.out.println(currentLowerBond + " lower bound =================");
-				int lowestDelay=minSingleMovesList.size();
-				//System.out.println(lowestDelay + " lowestDelay  ================="+minSingleMovesList);
-				//System.out.println(maximumTotalUnknown + " maximumTotalUnknown  =================");
-				if (lowestDelay<=currentLowerBond || maximumTotalUnknown<=0) {
-					//if ( maximumTotalUnknown<=0) {
-					String[] arrayA=bestDiffExitState.split(",");
-					int x1=Integer.parseInt(arrayA[0]); int y1=Integer.parseInt(arrayA[1]); 
-					int x2=Integer.parseInt(arrayA[2]); int y2=Integer.parseInt(arrayA[3]);
-					movesList=new ArrayList<Integer>();
-					updateMovesList(x1,y1,x2,y2);
-					//System.out.println(lowestDelay + " movesList  ================="+movesList);
-					//System.out.println(lowestDelay + " minSingleMovesList  ================="+minSingleMovesList);
-					movesList.addAll(minSingleMovesList);
-					//if(debug)
-					//System.out.println("next state chosen bestDiffExitState "+bestDiffExitState+" exploration halted as currentLowerBond="+currentLowerBond+" and lowestDelay="+lowestDelay);
+			String stateKey=lPlayer_X_Position+","+lPlayer_Y_Position+","+rPlayer_X_Position+","+rPlayer_Y_Position;
+			state.put(stateKey, 900);
+			//stateDistance[lPlayer_X_Position][lPlayer_Y_Position][rPlayer_X_Position][rPlayer_Y_Position]=0;
+			 maximumTotalUnknown=browse(lPlayer_X_Position,lPlayer_Y_Position,rPlayer_X_Position,rPlayer_Y_Position,false);
+			if(DEBUG)
+				System.out.println("maximumTotalUnknown  ="+maximumTotalUnknown);
 
-					movesListSet=true;
-
-				} else {
-					// lowest delay > currentLowerBond			
-					//if (maximumTotalUnknown>0.0) {
-					// above condition is implicit
-					if(justExplore==0) {
-						justExplore=maxJustExplore;
-					} else {
-						justExplore--;
-					}
-					nextState=stateBestBoth;
-					if(debug) 
-						System.out.println("next state chosen stateBestBoth"+nextState+" justExplore="+justExplore);
+			movesList=new ArrayList<Integer>();
+			boolean movesListSet=false;
+			if (exitReached()) {
+				updateMovesList(lPlayer_X_Exit,lPlayer_Y_Exit,rPlayer_X_Exit,rPlayer_Y_Exit);
+				if(DEBUG) {
+					System.out.println("next state chosen  as exit");
+					System.out.println("movesList"+movesList);	
+					System.out.println("exit location "+lPlayer_X_Exit+","+lPlayer_Y_Exit+"---"+rPlayer_X_Exit+","+rPlayer_Y_Exit);	
+					printMaps();
 				}
-
+				movesListSet=true;
 
 			} else {
-				// atleast one of the exits unknown
-				if (leftExitFound==true) {
-					nextState=stateBestRight;
-					String[] arrayA=nextState.split(",");
-					int unknowns=Integer.parseInt(arrayA[6]);
-					if (unknowns<=0) {
-						nextState=stateBestBoth;
-						arrayA=nextState.split(",");
-						unknowns=Integer.parseInt(arrayA[7]);
-					}
+				String nextState="";
+				if (leftExitFound==true && rightExitFound==true) {
+					state.clear();
+					state = new HashMap<String,Integer>();
+					freeMemory();
+					stateKey=lPlayer_X_Position+","+lPlayer_Y_Position+","+rPlayer_X_Position+","+rPlayer_Y_Position;
+					//System.out.println("current position "+stateKey);
+					state.put(stateKey, 900);
+					maximumTotalUnknown=browse(lPlayer_X_Position,lPlayer_Y_Position,rPlayer_X_Position,rPlayer_Y_Position,true);
 
-					if (unknowns<=0) {
-						int steps =countStepsToExit("left",lPlayer_X_Position,lPlayer_Y_Position);
-						movesList.addAll(singleMovesList);
+					// exits known but path not known
+					// go towards max total
+					currentLowerBond = lb.getLowerBound(leftMap, rightMap, lPlayer_Y_Exit,lPlayer_X_Exit, rPlayer_Y_Exit,rPlayer_X_Exit);
+					//System.out.println(currentLowerBond + " lower bound =================");
+					int lowestDelay=minSingleMovesList.size();
+					//System.out.println(lowestDelay + " lowestDelay  ================="+minSingleMovesList);
+					//System.out.println(maximumTotalUnknown + " maximumTotalUnknown  =================");
+					if (lowestDelay<=currentLowerBond || maximumTotalUnknown<=0) {
+						//if ( maximumTotalUnknown<=0) {
+						String[] arrayA=bestDiffExitState.split(",");
+						int x1=Integer.parseInt(arrayA[0]); int y1=Integer.parseInt(arrayA[1]); 
+						int x2=Integer.parseInt(arrayA[2]); int y2=Integer.parseInt(arrayA[3]);
+						movesList=new ArrayList<Integer>();
+						updateMovesList(x1,y1,x2,y2);
+						//System.out.println(lowestDelay + " movesList  ================="+movesList);
+						//System.out.println(lowestDelay + " minSingleMovesList  ================="+minSingleMovesList);
+						movesList.addAll(minSingleMovesList);
+						//if(debug)
+						//System.out.println("next state chosen bestDiffExitState "+bestDiffExitState+" exploration halted as currentLowerBond="+currentLowerBond+" and lowestDelay="+lowestDelay);
+
 						movesListSet=true;
-						if(debug)
-							System.out.println("next state was chosen stateBestRight "+stateBestRight+" but overridden by leftAloneExit  as the right player cant see anything new without left player stepping on the leftExit == movesList "+movesList+"  steps="+steps);
-					}else  {
-						if(debug) 
-							System.out.println("next state chosen stateBestRight"+nextState);
+
+					} else {
+						// lowest delay > currentLowerBond			
+						//if (maximumTotalUnknown>0.0) {
+						// above condition is implicit
+						if(justExplore==0) {
+							justExplore=maxJustExplore;
+						} else {
+							justExplore--;
+						}
+						nextState=stateBestBoth;
+						if(DEBUG) 
+							System.out.println("next state chosen stateBestBoth"+nextState+" justExplore="+justExplore);
 					}
 
-					// go towards max right
+
 				} else {
-					if (rightExitFound==true) {
-						// go towards max left
-						nextState=stateBestLeft;
-						//System.out.println("rightExitFound but not left nextState=stateBestLeft="+stateBestLeft);
+					// atleast one of the exits unknown
+					if (leftExitFound==true) {
+						nextState=stateBestRight;
 						String[] arrayA=nextState.split(",");
-						int unknowns=Integer.parseInt(arrayA[5]);
+						int unknowns=Integer.parseInt(arrayA[6]);
 						if (unknowns<=0) {
 							nextState=stateBestBoth;
 							arrayA=nextState.split(",");
@@ -469,34 +474,60 @@ public class StupidPlayer implements Player
 						}
 
 						if (unknowns<=0) {
-							countStepsToExit("right",rPlayer_X_Position,rPlayer_Y_Position);
+							int steps =countStepsToExit("left",lPlayer_X_Position,lPlayer_Y_Position);
 							movesList.addAll(singleMovesList);
 							movesListSet=true;
-							if(debug) System.out.println("next state was chosen stateBestLeft "+stateBestLeft+" but overridden by rightAloneExit  as the left player cant see anything new without right player stepping on the right ");
+							if(DEBUG)
+								System.out.println("next state was chosen stateBestRight "+stateBestRight+" but overridden by leftAloneExit  as the right player cant see anything new without left player stepping on the leftExit == movesList "+movesList+"  steps="+steps);
 						}else  {
-							if(debug) System.out.println("next state chosen stateBestLeft"+nextState);
+							if(DEBUG) 
+								System.out.println("next state chosen stateBestRight"+nextState);
 						}
+
+						// go towards max right
 					} else {
-						nextState=stateBestBoth;
-						String[] arrayA=nextState.split(",");
-						if (Integer.parseInt(arrayA[7])<=0) {
-							System.out.println(" This line should never be printed - It means that exits are not reachable");
-						}else  {
-							if(debug) System.out.println("next state chosen stateBestBoth"+stateBestBoth);
+						if (rightExitFound==true) {
+							// go towards max left
+							nextState=stateBestLeft;
+							//System.out.println("rightExitFound but not left nextState=stateBestLeft="+stateBestLeft);
+							String[] arrayA=nextState.split(",");
+							int unknowns=Integer.parseInt(arrayA[5]);
+							if (unknowns<=0) {
+								nextState=stateBestBoth;
+								arrayA=nextState.split(",");
+								unknowns=Integer.parseInt(arrayA[7]);
+							}
+
+							if (unknowns<=0) {
+								countStepsToExit("right",rPlayer_X_Position,rPlayer_Y_Position);
+								movesList.addAll(singleMovesList);
+								movesListSet=true;
+								if(DEBUG) System.out.println("next state was chosen stateBestLeft "+stateBestLeft+" but overridden by rightAloneExit  as the left player cant see anything new without right player stepping on the right ");
+							}else  {
+								if(DEBUG) System.out.println("next state chosen stateBestLeft"+nextState);
+							}
+						} else {
+							nextState=stateBestBoth;
+							String[] arrayA=nextState.split(",");
+							if (Integer.parseInt(arrayA[7])<=0) {
+								System.out.println(" This line should never be printed - It means that exits are not reachable");
+							}else  {
+								if(DEBUG) System.out.println("next state chosen stateBestBoth"+stateBestBoth);
+							}
+							// go towards max total
 						}
-						// go towards max total
 					}
 				}
-			}
-			if(!movesListSet) {
-				String[] arrayA=nextState.split(",");
-				int x1=Integer.parseInt(arrayA[0]); int y1=Integer.parseInt(arrayA[1]); 
-				int x2=Integer.parseInt(arrayA[2]); int y2=Integer.parseInt(arrayA[3]);
-				int distanceToBestState=Integer.parseInt(arrayA[4]);
-				if(debug) System.out.println("next state chosen "+nextState+" with distance "+distanceToBestState);
-				updateMovesList(x1,y1,x2,y2);
-			}
+				if(!movesListSet) {
+					String[] arrayA=nextState.split(",");
+					int x1=Integer.parseInt(arrayA[0]); int y1=Integer.parseInt(arrayA[1]); 
+					int x2=Integer.parseInt(arrayA[2]); int y2=Integer.parseInt(arrayA[3]);
+					int distanceToBestState=Integer.parseInt(arrayA[4]);
+					if(DEBUG) System.out.println("next state chosen "+nextState+" with distance "+distanceToBestState);
+					updateMovesList(x1,y1,x2,y2);
+				}
 
+			}
 		}
 
 
@@ -534,6 +565,8 @@ public class StupidPlayer implements Player
 			if(distance>oldDistance ) {
 				if( justExplore>0) { if(maxTotalScore>0) return maxTotalScore;}
 				if( leftExitFound==false && rightExitFound==false) { if(maxTotalScore>0) return maxTotalScore;}
+				if( leftExitFound==true && rightExitFound==true) { if(maxTotalScore>0) return maxTotalScore;}
+
 				if( leftExitFound==true  && rightExitFound==false)  { if(maxRightScore>0) return maxTotalScore;}
 				if( leftExitFound==false && rightExitFound==true)  { if(maxLeftScore>0) return maxTotalScore; }
 
@@ -588,20 +621,20 @@ public class StupidPlayer implements Player
 						// if the control crosses this line then it means that both the exits ae known and 0 delay solution is not possible
 						if(rightNext==2  ) {
 							singleStepsRequired=countStepsToExit("left",xm1,ym1);
-							if (debug) { 
-							System.out.println("# right at exit "+xm2+","+ym2); System.out.println("# left at  "+xm1+","+ym1);System.out.println("# singleStepsRequired   "+singleStepsRequired);
-								}
+							if (DEBUG) { 
+								System.out.println("# right at exit "+xm2+","+ym2); System.out.println("# left at  "+xm1+","+ym1);System.out.println("# singleStepsRequired   "+singleStepsRequired);
+							}
 						}
 						if(leftNext==2 ) {
 							singleStepsRequired=countStepsToExit("right",xm2,ym2);
-								if(debug) {
-							System.out.println("# left at exit "+xm1+","+ym1); System.out.println("# right at  "+xm2+","+ym2);System.out.println("# singleStepsRequired   "+singleStepsRequired);
+							if(DEBUG) {
+								System.out.println("# left at exit "+xm1+","+ym1); System.out.println("# right at  "+xm2+","+ym2);System.out.println("# singleStepsRequired   "+singleStepsRequired);
 							}
 						}
 						if(singleStepsRequired<minSingleStepsRequired) {
 							minSingleStepsRequired=singleStepsRequired; minSingleMovesList.clear(); minSingleMovesList.addAll(singleMovesList);
 							bestDiffExitState=xm1+","+ym1+","+xm2+","+ym2+","+distance;
-							if (debug) System.out.println("singleStepsRequired = "+singleStepsRequired+"  singleMovesList = "+singleMovesList);
+							if (DEBUG) System.out.println("singleStepsRequired = "+singleStepsRequired+"  singleMovesList = "+singleMovesList);
 						}
 						//if (round>311) { System.out.println("currentState="+xm1+","+ym1+","+xm2+","+ym2+","+distance); System.out.println("singleStepsRequired="+singleStepsRequired); System.out.println("minSingleStepsRequired="+minSingleStepsRequired); System.out.println("bestDiffExitState="+bestDiffExitState);}
 					}
@@ -625,7 +658,7 @@ public class StupidPlayer implements Player
 					continue;
 				}
 
-				if(debug) { 
+				if(DEBUG) { 
 					stateKey=xm1+","+ym1+","+xm2+","+ym2; System.out.println("state "+xm1+","+ym1+","+xm2+","+ym2+"="+state.get(stateKey)+" name="+stateName+" distance ="+distance+" moves="+moves);
 				}
 				if (exitReached())
@@ -811,7 +844,7 @@ public class StupidPlayer implements Player
 					if(sideNext==2) {
 						miniState.put(stateKey, moves);
 						//					miniState[xm1][ym1]=moves;
-						if (debug) { System.out.println("here singleExit sideNext  "+sideNext); System.out.println("miniState value "+miniState.get(stateKey)); System.out.println("xm1 "+xm1+"   ym1 "+ym1); System.out.println("destX "+destX+"   destY "+destY);System.out.println("distance "+distance);}
+						if (DEBUG) { System.out.println("here singleExit sideNext  "+sideNext); System.out.println("miniState value "+miniState.get(stateKey)); System.out.println("xm1 "+xm1+"   ym1 "+ym1); System.out.println("destX "+destX+"   destY "+destY);System.out.println("distance "+distance);}
 						destinationReached=true;
 						finalDistance=distance;
 						break;

@@ -1,4 +1,4 @@
-package mirroruniverse.stupidplayer;
+package mirroruniverse.g3pathfinder;
 
 import gnu.trove.list.TIntList;
 import gnu.trove.list.linked.TIntLinkedList;

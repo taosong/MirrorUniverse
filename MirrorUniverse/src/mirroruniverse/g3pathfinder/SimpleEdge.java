@@ -1,4 +1,4 @@
-package mirroruniverse.stupidplayer;
+package mirroruniverse.g3pathfinder;
 
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;

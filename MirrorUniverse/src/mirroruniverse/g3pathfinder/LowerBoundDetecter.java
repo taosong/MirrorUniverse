@@ -1,4 +1,4 @@
-package mirroruniverse.stupidplayer;
+package mirroruniverse.g3pathfinder;
 
 import java.util.ArrayList;
 import java.util.HashSet;

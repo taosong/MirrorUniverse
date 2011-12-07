@@ -1,9 +1,9 @@
 package mirroruniverse.g3player;
 
 import gnu.trove.list.linked.TIntLinkedList;
+import mirroruniverse.g3pathfinder.Graph;
+import mirroruniverse.g3pathfinder.Node;
 import mirroruniverse.sim.Player;
-import mirroruniverse.stupidplayer.Graph;
-import mirroruniverse.stupidplayer.Node;
 
 public class G3P0 implements Player {
 	

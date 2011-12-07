@@ -1,4 +1,4 @@
-package mirroruniverse.stupidplayer;
+package mirroruniverse.g3pathfinder;
 
 public class Point {
 	

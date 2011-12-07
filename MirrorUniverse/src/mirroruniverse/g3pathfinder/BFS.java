@@ -1,4 +1,4 @@
-package mirroruniverse.stupidplayer;
+package mirroruniverse.g3pathfinder;
 
 import gnu.trove.list.TIntList;
 import gnu.trove.list.linked.TIntLinkedList;
@@ -6,6 +6,7 @@ import gnu.trove.map.hash.TIntIntHashMap;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.Stack;
 
 public class BFS {
@@ -15,6 +16,7 @@ public class BFS {
 	boolean debug = false;
 	
 	private static final int[][] dirs = {{4,5,6},{3,0,7},{2,1,8}};
+	private static final int MAXSIZE = 25*1000*1000;
 	int exit = Integer.MIN_VALUE;
 	private boolean printMaps = false;
 	
@@ -91,10 +93,16 @@ public class BFS {
 							leftView[iprime][jprime]+","+rightView[kprime][lprime]+")"+
 							" ----- {("+i+","+j+")("+k+","+l+"");
 					
-					// Make u the parent of v and add v to the queue - classic BFS
-					parent.put(v, u);
-					queue.add(v);
-					
+					try {
+						// Make u the parent of v and add v to the queue - classic BFS
+						parent.put(v, u);
+						queue.add(v);
+					} catch (Throwable e) {
+						System.out.println("Parent size: "+parent.size());
+						System.out.println("Queue size: "+queue.size());
+						e.printStackTrace();
+						
+					}
 					// If you find that both are able to exit, add parent pointers and mark as visited and break
 					// out of loop
 					if (leftView[iprime][jprime] == 2 && rightView[kprime][lprime] == 2){
@@ -103,6 +111,11 @@ public class BFS {
 						retVal = 0;
 						break breakLabel;
 					}
+					if (parent.size() > MAXSIZE){
+						System.out.println("MAXSIZE REACHED");
+						//break breakLabel;
+					}
+					
 				}
 		}	
 		
@@ -127,7 +140,7 @@ public class BFS {
 
 		//assert(rightExitFirst != null && leftExitFirst != null);
 		
-		if(rightExitFirst == null && leftExitFirst == null){
+		if(rightExitFirst == null || leftExitFirst == null){
 			return -1;
 		}
 		
@@ -325,8 +338,25 @@ public class BFS {
 		BFS bfs = new BFS();
 		List<Integer> path = new LinkedList<Integer>(); 
 		int ret = bfs.bfs(leftView, rightView, 0,1,0,1,5,5,5,5, path);
+		
 		System.out.println(ret);
 		System.out.println(path);
+		
+		TIntIntHashMap test = new TIntIntHashMap();
+		int i = 0;
+		Random rand = new Random();
+		int x = 100; 
+		byte[][][][] test1 = new byte[x][x][x][x];
+		try {
+			// Make u the parent of v and add v to the queue - classic BFS
+			while(true){
+				i++;
+				test.put(i, rand.nextInt());
+			}
+		} catch (Throwable e) {
+			System.out.println("test size: "+test.size());
+			e.printStackTrace();
+		}
 	}
 	
 	public void printViews(int[][] left, int[][] right){
