@@ -1,2 +1,2 @@
-51, 12, 100, -1, maps/PipeMaze_A_51_12.txt, 5
-51, 12, 100, -1, maps/PipeMaze_B_51_12.txt, 3
+51, 12, 1, -1, maps/secondbigmap1.txt, 5
+51, 12, 1, -1, maps/secondbigmap2.txt, 3

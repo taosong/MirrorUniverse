@@ -11,6 +11,8 @@ public class PathFinder implements Player
 	int round=0;
 	LowerBoundDetecter lb = new LowerBoundDetecter();
 	BFS bfs = new BFS();
+	Date start;
+	public static final int LIMIT = 270 * 1000;
 
 	int currentLowerBond=Integer.MAX_VALUE;
 	int justExplore=0;
@@ -148,6 +150,7 @@ public class PathFinder implements Player
 		//debug=false;
 		//System.out.println(java.lang.Runtime.getRuntime().maxMemory()); 
 		if( round ==1) {
+			start = new Date();
 			singleMovesList=new ArrayList<Integer>();
 			minSingleMovesList=new ArrayList<Integer>();
 			movesList=new ArrayList<Integer>();
@@ -375,7 +378,8 @@ public class PathFinder implements Player
 					rPlayer_X_Position, lPlayer_X_Exit, lPlayer_Y_Exit, rPlayer_X_Exit, rPlayer_Y_Exit, tempList);
 
 			System.out.println("lowestDelay " + lowestDelay + " low bound detecter " + currentLowerBond);
-			if((lowestDelay<=currentLowerBond || maximumTotalUnknown <=0) && lowestDelay!=-1) {
+			boolean timeout = new Date().getTime() - start.getTime() > LIMIT;
+			if((lowestDelay<=currentLowerBond || maximumTotalUnknown <=0 || timeout) && lowestDelay!=-1) {
 				movesList = tempList;
 				keepExploring=false;
 				System.out.println("temp list = "+tempList);
