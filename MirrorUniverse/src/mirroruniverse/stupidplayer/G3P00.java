@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Stack;
 
 public class G3P00 {
+	int leftExitAlone = Integer.MIN_VALUE;
+	int rightExitAlone = Integer.MIN_VALUE;
 	
 	boolean debug = false;
 	final TIntIntHashMap parent = new TIntIntHashMap();
@@ -102,36 +104,55 @@ public class G3P00 {
 				(byte)(exitrx-100), (byte)(exitry-100));
 		
 		if(parent.containsKey(v)){
-			Stack<Integer> stk = new Stack<Integer>();
-			while(parent.get(v) != Integer.MIN_VALUE){
-				System.out.println("Adding dir: "+getDir(parent.get(v), v));
-				stk.push(getDir(parent.get(v), v));
-				v = parent.get(v);
-			}
-			while(!stk.isEmpty()){
-				path.add(stk.pop());
-			}
+			System.out.println("parent" + parent);
+			System.out.println("key" + v);
+			getPathToRoot(parent, v, path);
 			return retVal;
 		}
 		
 		System.out.println("No perfect solution found");
 		
-		List<Integer> rightExitFirst = bfs2d(leftView, startlx, startly, exitrx, exitry, true);
-		List<Integer> leftExitFirst = bfs2d(rightView, startrx, startry, exitlx, exitly, false);
+		List<Integer> rightExitFirst = bfs2d(leftView, exitlx, exitly, exitrx, exitry, true);
+		System.out.println("left");
+		List<Integer> leftExitFirst = bfs2d(rightView, exitrx, exitry, exitlx, exitly, false);
 		
 		assert(rightExitFirst != null && leftExitFirst != null);
 		
 		if(leftExitFirst.size() < rightExitFirst.size()){
+			getPathToRoot(parent, leftExitAlone, path);
 			path.addAll(leftExitFirst);
 			retVal = leftExitFirst.size();
 		}
 		else{
+			getPathToRoot(parent, rightExitAlone, path);
 			path.addAll(rightExitFirst);
 			retVal = rightExitFirst.size();
 		}
 		
+		
+		System.out.println(retVal);
 		return retVal;
 				
+	}
+	
+	
+	private void getPathToRoot(TIntIntHashMap pi, int v, List<Integer> path ){
+		
+		if(pi.containsKey(v)){
+			System.out.println("pi" + pi);
+			System.out.println("key" + v);
+			Stack<Integer> stk = new Stack<Integer>();
+			while(pi.get(v) != Integer.MIN_VALUE){
+				System.out.println("Adding dir: "+getDir(pi.get(v), v));
+				stk.push(getDir(pi.get(v), v));
+				v = pi.get(v);
+			}
+			while(!stk.isEmpty()){
+				path.add(stk.pop());
+			}
+			
+		}
+		
 	}
 	
 	public List<Integer> bfs2d(int[][] view, int x, int y, int ex, int ey, boolean isLeft){
@@ -155,7 +176,7 @@ public class G3P00 {
 			for (int deltaX = -1; deltaX < 2; deltaX++)
 				for (int deltaY = -1; deltaY < 2; deltaY++) {
 					
-					int iprime = -1, jprime = -1, kprime = -1, lprime = -1;
+					int iprime = -1, jprime = -1;
 					
 					if (deltaX == 0 && deltaY == 0)continue;
 					
@@ -176,7 +197,8 @@ public class G3P00 {
 					// If we have visited this node earlier, continue
 					if(pi.containsKey(v)) continue;
 					
-					System.out.println("Opening node: ("+iprime+","+jprime+") - ("+view[iprime][jprime]+")");
+					System.out.println("Opening node: ("+iprime+","+jprime+") - ("+view[iprime][jprime]+")" + 
+					" - " + unpack(u)[1]+","+unpack(u)[0]);
 					
 					// Make u the parent of v and add v to the queue - classic BFS
 					pi.put(v, u);
@@ -193,6 +215,11 @@ public class G3P00 {
 					if (parent.containsKey(state)){
 						// You have reached the exit state!!
 						exit = v;
+						if(isLeft){
+							leftExitAlone = state;
+						}else{
+							rightExitAlone = state;
+						}
 						break breakLabel;
 					}
 					
@@ -204,7 +231,7 @@ public class G3P00 {
 			List<Integer> path = new LinkedList<Integer>();
 			while(pi.get(v) != Integer.MIN_VALUE){
 				int u = pi.get(v);
-				path.add(getDir2d(u, v));
+				path.add(getDir2d(v, u));
 				v = u;
 			}
 			return path;
@@ -225,7 +252,7 @@ public class G3P00 {
 		short[] uS = unpack(u);
 		short[] vS = unpack(v);
 		int dx = uS[0] - vS[0];
-		int dy = vS[1] - vS[1];
+		int dy = uS[1] - vS[1];
 		return dirs[dx+1][dy+1];
 	}
 	
@@ -264,11 +291,12 @@ public class G3P00 {
 	}
 	
 	public static void main(String[] args) {
-		int[][] leftView = {{1,1,0},{0,0,0},{2,0,0}};
-		int[][] rightView = {{1,1,0},{0,0,0},{2,0,0}};
+		//book
+		int[][] leftView = {{0,0,0},{0,0,0},{0,0,2}};
+		int[][] rightView = {{2,0,0},{0,0,0},{0,0,0}};
 		G3P00 g3p00 = new G3P00();
 		List<Integer> path = new LinkedList<Integer>(); 
-		g3p00.bfs(leftView, rightView, 0,2,0,2,0,2,0,2, path);
+		g3p00.bfs(leftView, rightView, 0,1,0,1,2,2,0,0, path);
 		System.out.println(path);
 	}
 	
