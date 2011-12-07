@@ -13,7 +13,7 @@ public class BFS {
 	int rightExitAlone = Integer.MIN_VALUE;
 	
 	boolean debug = false;
-	final TIntIntHashMap parent = new TIntIntHashMap();
+	
 	private static final int[][] dirs = {{4,5,6},{3,0,7},{2,1,8}};
 	int exit = Integer.MIN_VALUE;
 	private boolean printMaps = false;
@@ -21,7 +21,7 @@ public class BFS {
 	public int bfs(final int[][] leftView, final int[][] rightView,
 			final int startly, final int startlx, final int startry, final int startrx,
 			final int exitlx, final int exitly, final int exitrx, final int exitry, List<Integer> path){
-		
+		TIntIntHashMap parent = new TIntIntHashMap();
 		path.clear();
 		TIntList queue = new TIntLinkedList();
 		printMaps(leftView, rightView);
@@ -120,14 +120,16 @@ public class BFS {
 		
 		if(debug)System.out.println("No perfect solution found");
 		
-		List<Integer> rightExitFirst = bfs2d(leftView, exitlx, exitly, exitrx, exitry, true);
+		List<Integer> rightExitFirst = bfs2d(leftView, exitlx, exitly, exitrx, exitry, true, parent);
 		if(debug)System.out.println("left");
-		List<Integer> leftExitFirst = bfs2d(rightView, exitrx, exitry, exitlx, exitly, false);
+		List<Integer> leftExitFirst = bfs2d(rightView, exitrx, exitry, exitlx, exitly, false, parent);
 		
-		assert(rightExitFirst != null && leftExitFirst != null);
 
-		System.out.println(rightExitFirst + " r " + leftExitFirst + " l ");
+		//assert(rightExitFirst != null && leftExitFirst != null);
 		
+		if(rightExitFirst == null && leftExitFirst == null){
+			return -1;
+		}
 		
 		// bookmark magic change
 		if(leftExitFirst.size() < rightExitFirst.size()){
@@ -167,7 +169,7 @@ public class BFS {
 		
 	}
 	
-	public List<Integer> bfs2d(int[][] view, int x, int y, int ex, int ey, boolean isLeft){
+	public List<Integer> bfs2d(int[][] view, int x, int y, int ex, int ey, boolean isLeft, TIntIntHashMap parent){
 		
 		TIntList queue = new TIntLinkedList();
 		TIntIntHashMap pi = new TIntIntHashMap();
