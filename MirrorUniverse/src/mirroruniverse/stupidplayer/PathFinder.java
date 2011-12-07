@@ -59,7 +59,7 @@ public class PathFinder implements Player
 	 * This is the maximum sidelength of the map on which it will work
 	 * it has to be hrdcoded to 100 as per the problem statement
 	 */
-	int maxMapSideLength=50;
+	int maxMapSideLength=100;
 
 	/*
 	 * this is the map size which we will consider  
