@@ -118,13 +118,14 @@ public class BFS {
 		
 		assert(rightExitFirst != null && leftExitFirst != null);
 		
+		// bookmark magic change
 		if(leftExitFirst.size() < rightExitFirst.size()){
-			getPathToRoot(parent, leftExitAlone, path);
+			getPathToRoot(parent, rightExitAlone, path);
 			path.addAll(leftExitFirst);
 			retVal = leftExitFirst.size();
 		}
 		else{
-			getPathToRoot(parent, rightExitAlone, path);
+			getPathToRoot(parent, leftExitAlone, path);
 			path.addAll(rightExitFirst);
 			retVal = rightExitFirst.size();
 		}
@@ -193,8 +194,7 @@ public class BFS {
 					if(view[iprime][jprime] == 4) continue;
 
 					int v = pack(jprime, iprime);
-					
-					// If we have visited this node earlier, continue
+										// If we have visited this node earlier, continue
 					if(pi.containsKey(v)) continue;
 					
 					if(debug) System.out.println("Opening node: ("+iprime+","+jprime+") - ("+view[iprime][jprime]+")" + 
@@ -231,7 +231,7 @@ public class BFS {
 			List<Integer> path = new LinkedList<Integer>();
 			while(pi.get(v) != Integer.MIN_VALUE){
 				int u = pi.get(v);
-				path.add(getDir2d(v, u));
+				path.add(getDir2d(u, v));
 				v = u;
 			}
 			return path;
@@ -299,7 +299,7 @@ public class BFS {
 				            {1,1,1,0,0,0},
 				            {1,1,0,0,0,1},
 				            {1,1,0,0,0,1},
-				            {1,1,0,0,0,1},
+				            {1,1,0,0,1,0},
 				            {1,1,0,0,1,2}};
 		
 		int[][] rightView = {{1,0,0,1,1,1},
