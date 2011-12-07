@@ -112,7 +112,7 @@ public class BFS {
 						break breakLabel;
 					}
 					if (parent.size() > MAXSIZE){
-						System.out.println("MAXSIZE REACHED");
+						//System.out.println("MAXSIZE REACHED");
 						//break breakLabel;
 					}
 					
