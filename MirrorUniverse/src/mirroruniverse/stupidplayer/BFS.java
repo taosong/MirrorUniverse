@@ -37,13 +37,13 @@ public class BFS {
 		while (!queue.isEmpty()) {
 			
 			int u = queue.removeAt(0);
+			
 			byte[] bytes = Node.getBytes(u);
 			int j = bytes[0] + 100;
 			int i = bytes[1] + 100;
 			int l = bytes[2] + 100;
 			int k = bytes[3] + 100;
 			if(leftView[i][j] == 2 || rightView[k][l] == 2) continue;
-
 			
 			label:
 			for (int deltaX = -1; deltaX < 2; deltaX++)
@@ -98,6 +98,7 @@ public class BFS {
 					// If you find that both are able to exit, add parent pointers and mark as visited and break
 					// out of loop
 					if (leftView[iprime][jprime] == 2 && rightView[kprime][lprime] == 2){
+						System.out.println("Perfect Solution found!!");
 						assert(iprime == exitlx && jprime == exitly && kprime == exitrx && lprime == exitry);
 						retVal = 0;
 						break breakLabel;
@@ -124,6 +125,9 @@ public class BFS {
 		List<Integer> leftExitFirst = bfs2d(rightView, exitrx, exitry, exitlx, exitly, false);
 		
 		assert(rightExitFirst != null && leftExitFirst != null);
+
+		System.out.println(rightExitFirst + " r " + leftExitFirst + " l ");
+		
 		
 		// bookmark magic change
 		if(leftExitFirst.size() < rightExitFirst.size()){
@@ -301,6 +305,7 @@ public class BFS {
 	}
 	
 	public static void main(String[] args) {
+
 		//book
 		int[][] leftView = {{1,0,0,1,1,1},
 				            {1,1,1,0,0,0},
@@ -314,7 +319,7 @@ public class BFS {
 				            {1,1,0,0,0,1},
 				            {1,1,0,0,0,1},
 				            {1,1,0,0,4,4},
-				            {1,1,0,1,0,2}};
+				            {1,1,0,1,1,2}};
 		BFS bfs = new BFS();
 		List<Integer> path = new LinkedList<Integer>(); 
 		int ret = bfs.bfs(leftView, rightView, 0,1,0,1,5,5,5,5, path);
