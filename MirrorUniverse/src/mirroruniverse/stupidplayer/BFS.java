@@ -8,17 +8,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-public class G3P00 {
+public class BFS {
+	int leftExitAlone = Integer.MIN_VALUE;
+	int rightExitAlone = Integer.MIN_VALUE;
 	
 	boolean debug = false;
 	final TIntIntHashMap parent = new TIntIntHashMap();
 	private static final int[][] dirs = {{4,5,6},{3,0,7},{2,1,8}};
 	int exit = Integer.MIN_VALUE;
 	
-	public List<Integer> bfs(final int[][] leftView, final int[][] rightView,
+	public int bfs(final int[][] leftView, final int[][] rightView,
 			final int startly, final int startlx, final int startry, final int startrx,
-			final int exitlx, final int exitly, final int exitrx, final int exitry){
+			final int exitlx, final int exitly, final int exitrx, final int exitry, List<Integer> path){
 		
+		path.clear();
 		TIntList queue = new TIntLinkedList();
 		printMaps(leftView, rightView);
 		
@@ -101,28 +104,156 @@ public class G3P00 {
 				(byte)(exitrx-100), (byte)(exitry-100));
 		
 		if(parent.containsKey(v)){
-			Stack<Integer> path = new Stack<Integer>();
-			while(parent.get(v) != Integer.MIN_VALUE){
-				System.out.println("Adding dir: "+getDir(parent.get(v), v));
-				path.push(getDir(parent.get(v), v));
-				v = parent.get(v);
-			}
-			List<Integer> p = new LinkedList<Integer>();
-			while(!path.isEmpty()){
-				p.add(path.pop());
-			}
-			return p;
+			System.out.println("parent" + parent);
+			System.out.println("key" + v);
+			getPathToRoot(parent, v, path);
+			return retVal;
 		}
 		
-		System.out.println("No path found - returning null");
-		return null;
+		System.out.println("No perfect solution found");
+		
+		List<Integer> rightExitFirst = bfs2d(leftView, exitlx, exitly, exitrx, exitry, true);
+		System.out.println("left");
+		List<Integer> leftExitFirst = bfs2d(rightView, exitrx, exitry, exitlx, exitly, false);
+		
+		assert(rightExitFirst != null && leftExitFirst != null);
+		
+		if(leftExitFirst.size() < rightExitFirst.size()){
+			getPathToRoot(parent, leftExitAlone, path);
+			path.addAll(leftExitFirst);
+			retVal = leftExitFirst.size();
+		}
+		else{
+			getPathToRoot(parent, rightExitAlone, path);
+			path.addAll(rightExitFirst);
+			retVal = rightExitFirst.size();
+		}
+		
+		
+		System.out.println(retVal);
+		return retVal;
 				
 	}
 	
-	public List<Integer> bfs2d(int[][] view, int x, int y, int ex, int ey){
+	
+	private void getPathToRoot(TIntIntHashMap pi, int v, List<Integer> path ){
 		
+		if(pi.containsKey(v)){
+			System.out.println("pi" + pi);
+			System.out.println("key" + v);
+			Stack<Integer> stk = new Stack<Integer>();
+			while(pi.get(v) != Integer.MIN_VALUE){
+				System.out.println("Adding dir: "+getDir(pi.get(v), v));
+				stk.push(getDir(pi.get(v), v));
+				v = pi.get(v);
+			}
+			while(!stk.isEmpty()){
+				path.add(stk.pop());
+			}
+			
+		}
+		
+	}
+	
+	public List<Integer> bfs2d(int[][] view, int x, int y, int ex, int ey, boolean isLeft){
+		
+		TIntList queue = new TIntLinkedList();
+		TIntIntHashMap pi = new TIntIntHashMap();
+		
+		int exit = Integer.MIN_VALUE;
+		
+		int source = pack(x,y);
+		queue.add(source);
+		pi.put(source, Integer.MIN_VALUE);
+		
+		breakLabel:
+		while(!queue.isEmpty()){
+			int u = queue.removeAt(0);
+			short[] ushorts = unpack(u);
+			int j = ushorts[0];
+			int i = ushorts[1];
+			
+			for (int deltaX = -1; deltaX < 2; deltaX++)
+				for (int deltaY = -1; deltaY < 2; deltaY++) {
+					
+					int iprime = -1, jprime = -1;
+					
+					if (deltaX == 0 && deltaY == 0)continue;
+					
+					iprime = incr(view.length, i, deltaY, iprime);
+					jprime = incr(view[0].length, j, deltaX, jprime);
+					
+					// If no increment is possible, continue
+					if (iprime == -1 || jprime == -1) continue;
+
+					// If you have hit an obstacle then continue
+					if (view[iprime][jprime] == 1) continue;
+					
+					// If this move takes us into unexplored territory, then continue
+					if(view[iprime][jprime] == 4) continue;
+
+					int v = pack(jprime, iprime);
+					
+					// If we have visited this node earlier, continue
+					if(pi.containsKey(v)) continue;
+					
+					System.out.println("Opening node: ("+iprime+","+jprime+") - ("+view[iprime][jprime]+")" + 
+					" - " + unpack(u)[1]+","+unpack(u)[0]);
+					
+					// Make u the parent of v and add v to the queue - classic BFS
+					pi.put(v, u);
+					queue.add(v);
+					
+					int state;
+					
+					if(isLeft){
+						state = Node.getHash((byte)(jprime - 100), (byte)(iprime - 100), (byte)(ex-100), (byte)(ey-100));
+					}else{
+						state = Node.getHash((byte)(ex-100), (byte)(ey-100), (byte)(jprime - 100), (byte)(iprime - 100));
+					}
+					
+					if (parent.containsKey(state)){
+						// You have reached the exit state!!
+						exit = v;
+						if(isLeft){
+							leftExitAlone = state;
+						}else{
+							rightExitAlone = state;
+						}
+						break breakLabel;
+					}
+					
+				}	
+		}
+		
+		if(exit != Integer.MIN_VALUE){
+			int v = exit;
+			List<Integer> path = new LinkedList<Integer>();
+			while(pi.get(v) != Integer.MIN_VALUE){
+				int u = pi.get(v);
+				path.add(getDir2d(v, u));
+				v = u;
+			}
+			return path;
+		}
 		
 		return null;
+	}
+	
+	private int pack(int x, int y){
+		return (x & 0xFFFF)+((y & 0xFFFF)<<16);
+	}
+	
+	private short[] unpack(int x){
+		return new short[]{(short) x, (short)(x >>> 16)};
+	}
+	
+	private int getDir2d(int u, int v){
+		short[] uS = unpack(u);
+		short[] vS = unpack(v);
+		int dx = uS[0] - vS[0];
+		int dy = uS[1] - vS[1];
+		return dirs[dx+1][dy+1];
 	}
 	
 	private int getDir(int src, int dest){
@@ -160,10 +291,13 @@ public class G3P00 {
 	}
 	
 	public static void main(String[] args) {
-		int[][] leftView = {{1,1,0},{0,0,0},{2,0,0}};
-		int[][] rightView = {{1,1,0},{0,0,0},{2,0,0}};
-		G3P00 g3p00 = new G3P00();
-		List<Integer> path = g3p00.bfs(leftView, rightView, 0,2,0,2,0,2,0,2);
+		//book
+		int[][] leftView = {{0,0,0},{0,0,0},{0,0,2}};
+		int[][] rightView = {{0,0,0},{0,0,0},{0,0,2}};
+		BFS bfs = new BFS();
+		List<Integer> path = new LinkedList<Integer>(); 
+		int ret = bfs.bfs(leftView, rightView, 0,1,0,1,2,2,2,2, path);
+		System.out.println(ret);
 		System.out.println(path);
 	}
 	
