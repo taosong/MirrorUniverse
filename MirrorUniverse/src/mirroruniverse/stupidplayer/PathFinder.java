@@ -136,6 +136,7 @@ public class PathFinder implements Player
 	String stateBestLeft,stateBestRight,stateBestBoth,bestDiffExitState;
 
 	ArrayList<Integer> bestMovesOrder ;
+	private double maximumTotalUnknown = 1;
 
 
 	public static final int[][] movesArray = { { 0, 0 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 },  { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 } };
@@ -181,7 +182,8 @@ public class PathFinder implements Player
 		if(movesList.isEmpty()) { 
 			//	printMaps();
 		}
-
+		System.out.println("look & move + " + movesList);
+		 
 		lastMove=movesList.remove(0);
 		if (debug) {
 			System.out.println("\t\t\t*****round "+round+"lastMove "+lastMove+"  movesList="+movesList);
@@ -371,25 +373,37 @@ public class PathFinder implements Player
 		String stateKey=lPlayer_X_Position+","+lPlayer_Y_Position+","+rPlayer_X_Position+","+rPlayer_Y_Position;
 		state.put(stateKey, 900);
 		//stateDistance[lPlayer_X_Position][lPlayer_Y_Position][rPlayer_X_Position][rPlayer_Y_Position]=0;
-		double maximumTotalUnknown=browse(lPlayer_X_Position,lPlayer_Y_Position,rPlayer_X_Position,rPlayer_Y_Position,false);
 		boolean keepExploring=true;
 		if (leftExitFound==true && rightExitFound==true) { 
-
+			
 			//movesList=new ArrayList<Integer>();
+			System.out.println("bfs called " + new Date());
 			ArrayList<Integer> tempList =new ArrayList<Integer>();
 			currentLowerBond = lb.getLowerBound(leftMap, rightMap, lPlayer_Y_Exit,lPlayer_X_Exit, rPlayer_Y_Exit,rPlayer_X_Exit);
 			int lowestDelay=bfs.bfs(leftMap, rightMap, lPlayer_Y_Position, lPlayer_X_Position, rPlayer_Y_Position,
 					rPlayer_X_Position, lPlayer_X_Exit, lPlayer_Y_Exit, rPlayer_X_Exit, rPlayer_Y_Exit, tempList);
-			if(lowestDelay<=currentLowerBond || maximumTotalUnknown<=0) {
+			
+			System.out.println("lowestDelay " + lowestDelay + " low bound detecter " + currentLowerBond);
+			if(lowestDelay<=currentLowerBond || maximumTotalUnknown <=0) {
 				movesList = tempList;
 				keepExploring=false;
+				System.out.println("temp list = "+tempList);
 			}
+			System.out.println("bfs returned " + new Date());
 		} 
 		if(keepExploring) {
 
+			maximumTotalUnknown=browse(lPlayer_X_Position,lPlayer_Y_Position,rPlayer_X_Position,rPlayer_Y_Position,false);
 			boolean movesListSet=false;
 			String nextState="";
 
+			if(justExplore == 0){
+				justExplore = maxJustExplore;
+			}
+			else{
+				justExplore--;
+			}
+			
 			if (leftExitFound==true) {
 				nextState=stateBestRight;
 				String[] arrayA=nextState.split(",");

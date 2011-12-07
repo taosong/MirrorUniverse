@@ -13,21 +13,21 @@ public class BFS {
 	int rightExitAlone = Integer.MIN_VALUE;
 	
 	boolean debug = false;
-	final TIntIntHashMap parent = new TIntIntHashMap();
+	
 	private static final int[][] dirs = {{4,5,6},{3,0,7},{2,1,8}};
 	int exit = Integer.MIN_VALUE;
 	
 	public int bfs(final int[][] leftView, final int[][] rightView,
 			final int startly, final int startlx, final int startry, final int startrx,
 			final int exitlx, final int exitly, final int exitrx, final int exitry, List<Integer> path){
-		
+		TIntIntHashMap parent = new TIntIntHashMap();
 		path.clear();
 		TIntList queue = new TIntLinkedList();
 		printMaps(leftView, rightView);
 		
 		int source = Node.getHash((byte)(startlx-100), (byte)(startly-100),
 				(byte)(startrx-100), (byte)(startry-100));
-		System.out.println("Source: {("+startly+","+startlx+")("+startry+","+startrx+")}");
+		if(debug)System.out.println("Source: {("+startly+","+startlx+")("+startry+","+startrx+")}");
 		queue.add(source);
 		parent.put(source, Integer.MIN_VALUE);
 		int retVal = -1;
@@ -36,11 +36,14 @@ public class BFS {
 		while (!queue.isEmpty()) {
 			
 			int u = queue.removeAt(0);
+			
 			byte[] bytes = Node.getBytes(u);
 			int j = bytes[0] + 100;
 			int i = bytes[1] + 100;
 			int l = bytes[2] + 100;
 			int k = bytes[3] + 100;
+			
+			if(leftView[i][j] == 2 || rightView[k][l] == 2) continue;
 			
 			for (int deltaX = -1; deltaX < 2; deltaX++)
 				for (int deltaY = -1; deltaY < 2; deltaY++) {
@@ -83,7 +86,7 @@ public class BFS {
 					// If we have visited this node, continue
 					if(parent.containsKey(v)) continue;
 					
-					System.out.println("Opening node: {("+iprime+","+jprime+")("+kprime+","+lprime+")} - ("+
+					if(debug)System.out.println("Opening node: {("+iprime+","+jprime+")("+kprime+","+lprime+")} - ("+
 							leftView[iprime][jprime]+","+rightView[kprime][lprime]+")");
 					
 					// Make u the parent of v and add v to the queue - classic BFS
@@ -93,6 +96,7 @@ public class BFS {
 					// If you find that both are able to exit, add parent pointers and mark as visited and break
 					// out of loop
 					if (leftView[iprime][jprime] == 2 && rightView[kprime][lprime] == 2){
+						System.out.println("Perfect Solution found!!");
 						assert(iprime == exitlx && jprime == exitly && kprime == exitrx && lprime == exitry);
 						retVal = 0;
 						break breakLabel;
@@ -104,33 +108,38 @@ public class BFS {
 				(byte)(exitrx-100), (byte)(exitry-100));
 		
 		if(parent.containsKey(v)){
-			System.out.println("parent" + parent);
-			System.out.println("key" + v);
+			if(debug)System.out.println("parent" + parent);
+			if(debug)System.out.println("key" + v);
 			getPathToRoot(parent, v, path);
 			return retVal;
 		}
 		
-		System.out.println("No perfect solution found");
+		if(debug)System.out.println("No perfect solution found");
 		
-		List<Integer> rightExitFirst = bfs2d(leftView, exitlx, exitly, exitrx, exitry, true);
-		System.out.println("left");
-		List<Integer> leftExitFirst = bfs2d(rightView, exitrx, exitry, exitlx, exitly, false);
+		List<Integer> rightExitFirst = bfs2d(leftView, exitlx, exitly, exitrx, exitry, true, parent);
+		if(debug)System.out.println("left");
+		List<Integer> leftExitFirst = bfs2d(rightView, exitrx, exitry, exitlx, exitly, false, parent);
 		
-		assert(rightExitFirst != null && leftExitFirst != null);
+		//assert(rightExitFirst != null && leftExitFirst != null);
 		
+		if(rightExitFirst == null && leftExitFirst == null){
+			return -1;
+		}
+		
+		// bookmark magic change
 		if(leftExitFirst.size() < rightExitFirst.size()){
-			getPathToRoot(parent, leftExitAlone, path);
+			getPathToRoot(parent, rightExitAlone, path);
 			path.addAll(leftExitFirst);
 			retVal = leftExitFirst.size();
 		}
 		else{
-			getPathToRoot(parent, rightExitAlone, path);
+			getPathToRoot(parent, leftExitAlone, path);
 			path.addAll(rightExitFirst);
 			retVal = rightExitFirst.size();
 		}
 		
-		
-		System.out.println(retVal);
+		if(debug)
+			System.out.println(retVal);
 		return retVal;
 				
 	}
@@ -139,11 +148,11 @@ public class BFS {
 	private void getPathToRoot(TIntIntHashMap pi, int v, List<Integer> path ){
 		
 		if(pi.containsKey(v)){
-			System.out.println("pi" + pi);
-			System.out.println("key" + v);
+			if(debug)System.out.println("pi" + pi);
+			if(debug)System.out.println("key" + v);
 			Stack<Integer> stk = new Stack<Integer>();
 			while(pi.get(v) != Integer.MIN_VALUE){
-				System.out.println("Adding dir: "+getDir(pi.get(v), v));
+				if(debug)System.out.println("Adding dir: "+getDir(pi.get(v), v));
 				stk.push(getDir(pi.get(v), v));
 				v = pi.get(v);
 			}
@@ -155,7 +164,7 @@ public class BFS {
 		
 	}
 	
-	public List<Integer> bfs2d(int[][] view, int x, int y, int ex, int ey, boolean isLeft){
+	public List<Integer> bfs2d(int[][] view, int x, int y, int ex, int ey, boolean isLeft, TIntIntHashMap parent){
 		
 		TIntList queue = new TIntLinkedList();
 		TIntIntHashMap pi = new TIntIntHashMap();
@@ -193,11 +202,10 @@ public class BFS {
 					if(view[iprime][jprime] == 4) continue;
 
 					int v = pack(jprime, iprime);
-					
-					// If we have visited this node earlier, continue
+										// If we have visited this node earlier, continue
 					if(pi.containsKey(v)) continue;
 					
-					System.out.println("Opening node: ("+iprime+","+jprime+") - ("+view[iprime][jprime]+")" + 
+					if(debug) System.out.println("Opening node: ("+iprime+","+jprime+") - ("+view[iprime][jprime]+")" + 
 					" - " + unpack(u)[1]+","+unpack(u)[0]);
 					
 					// Make u the parent of v and add v to the queue - classic BFS
@@ -231,7 +239,7 @@ public class BFS {
 			List<Integer> path = new LinkedList<Integer>();
 			while(pi.get(v) != Integer.MIN_VALUE){
 				int u = pi.get(v);
-				path.add(getDir2d(v, u));
+				path.add(getDir2d(u, v));
 				v = u;
 			}
 			return path;
@@ -275,6 +283,9 @@ public class BFS {
 	}
 	
 	public void printMaps(int[][] leftView, int[][] rightView){
+		if(!debug)
+			return;
+		
 		System.out.println("Left View: ");
 		printView(leftView);
 		System.out.println("Right View: ");
@@ -291,12 +302,24 @@ public class BFS {
 	}
 	
 	public static void main(String[] args) {
+
 		//book
-		int[][] leftView = {{0,0,0},{0,0,0},{0,0,2}};
-		int[][] rightView = {{0,0,0},{0,0,0},{0,0,2}};
+		int[][] leftView = {{1,0,0,1,1,1},
+				            {1,1,1,0,0,0},
+				            {1,1,0,0,0,1},
+				            {1,1,0,0,0,1},
+				            {1,1,0,0,1,0},
+				            {1,1,0,0,1,2}};
+		
+		int[][] rightView = {{1,0,0,1,1,1},
+				            {1,1,1,0,0,0},
+				            {1,1,0,0,0,1},
+				            {1,1,0,0,0,1},
+				            {1,1,0,0,1,1},
+				            {1,1,0,1,0,2}};
 		BFS bfs = new BFS();
 		List<Integer> path = new LinkedList<Integer>(); 
-		int ret = bfs.bfs(leftView, rightView, 0,1,0,1,2,2,2,2, path);
+		int ret = bfs.bfs(leftView, rightView, 0,1,0,1,5,5,5,5, path);
 		System.out.println(ret);
 		System.out.println(path);
 	}
