@@ -562,6 +562,8 @@ public class PathFinder implements Player
 			if(distance>oldDistance ) {
 				if( justExplore>0) { if(maxTotalScore>0) return maxTotalScore;}
 				if( leftExitFound==false && rightExitFound==false) { if(maxTotalScore>0) return maxTotalScore;}
+				if( leftExitFound==true && rightExitFound==true) { if(maxTotalScore>0) return maxTotalScore;}
+
 				if( leftExitFound==true  && rightExitFound==false)  { if(maxRightScore>0) return maxTotalScore;}
 				if( leftExitFound==false && rightExitFound==true)  { if(maxLeftScore>0) return maxTotalScore; }
 
