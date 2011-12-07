@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="MirrorUniverse/lib/jgrapht-0.8.2/src"/>
+	<classpathentry kind="src" path="MirrorUniverse/lib/jgrapht-0.8.2/testsrc"/>
+	<classpathentry kind="src" path="MirrorUniverse/src"/>
+	<classpathentry kind="lib" path="MirrorUniverse/lib/jgrapht-0.8.2/jgrapht-jdk1.6.jar"/>
+	<classpathentry kind="lib" path="MirrorUniverse/lib/jgrapht-0.8.2/lib/jgraph.jar"/>
+	<classpathentry kind="lib" path="MirrorUniverse/lib/jgrapht-0.8.2/lib/junit.jar"/>
+	<classpathentry kind="lib" path="MirrorUniverse/lib/jgrapht-0.8.2/lib/svnant.jar"/>
+	<classpathentry kind="lib" path="MirrorUniverse/lib/jgrapht-0.8.2/lib/svnClientAdapter.jar"/>
+	<classpathentry kind="lib" path="MirrorUniverse/lib/jgrapht-0.8.2/lib/TGGraphLayout.jar"/>
+	<classpathentry kind="lib" path="MirrorUniverse/lib/jgrapht-0.8.2/lib/xmlunit1.0.jar"/>
+	<classpathentry kind="lib" path="MirrorUniverse/lib/trove-3.0.2.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="MirrorUniverse/bin"/>
+</classpath>

@@ -1,2 +1,2 @@
-4, 4, 1, -1, maps/map_50_50_illusion_1.txt, 3
-3, 3, 1, -1, maps/map_50_50_illusion_2.txt, 3
+4, 4, 1, -1, maps/leftBig.txt, 3
+3, 3, 1, -1, maps/rightBig.txt, 3
