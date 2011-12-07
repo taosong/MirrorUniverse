@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-public class G3P00 {
+public class BFS {
 	int leftExitAlone = Integer.MIN_VALUE;
 	int rightExitAlone = Integer.MIN_VALUE;
 	
@@ -293,10 +293,11 @@ public class G3P00 {
 	public static void main(String[] args) {
 		//book
 		int[][] leftView = {{0,0,0},{0,0,0},{0,0,2}};
-		int[][] rightView = {{2,0,0},{0,0,0},{0,0,0}};
-		G3P00 g3p00 = new G3P00();
+		int[][] rightView = {{0,0,0},{0,0,0},{0,0,2}};
+		BFS bfs = new BFS();
 		List<Integer> path = new LinkedList<Integer>(); 
-		g3p00.bfs(leftView, rightView, 0,1,0,1,2,2,0,0, path);
+		int ret = bfs.bfs(leftView, rightView, 0,1,0,1,2,2,2,2, path);
+		System.out.println(ret);
 		System.out.println(path);
 	}
 	
