@@ -1,3 +1,4 @@
 //mirroruniverse.g3player.G3Player
-mirroruniverse.stupidplayer.StupidPlayer
+//mirroruniverse.stupidplayer.StupidPlayer
 //mirroruniverse.aiplayer.AiPlayer
+mirroruniverse.stupidplayer.PathFinder
