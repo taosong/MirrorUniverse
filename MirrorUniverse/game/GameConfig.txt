@@ -1,2 +1,2 @@
-90, 90, 2, -1, maps/leftBig.txt, 3
-100, 100, 2, -1, maps/rightBig.txt, 1212121
+51, 12, 100, -1, maps/PipeMaze_A_51_12.txt, 5
+51, 12, 100, -1, maps/PipeMaze_B_51_12.txt, 3

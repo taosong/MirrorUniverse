@@ -1,6 +1,5 @@
 package mirroruniverse.stupidplayer;
 
-//import gnu.trove.list.linked.TIntLinkedList;
 import java.util.*;
 
 import mirroruniverse.sim.MUMap;
@@ -13,10 +12,10 @@ public class PathFinder implements Player
 	LowerBoundDetecter lb = new LowerBoundDetecter();
 	BFS bfs = new BFS();
 
-
 	int currentLowerBond=Integer.MAX_VALUE;
 	int justExplore=0;
-	int maxJustExplore=40;
+	int maxJustExplore=50;
+	double maximumTotalUnknown=Double.MAX_VALUE;
 	/*
 	 * initially moveList is empty --
 	 * the player selects the best place to move and stores the moves that would take it 
@@ -58,7 +57,7 @@ public class PathFinder implements Player
 	 * This is the maximum sidelength of the map on which it will work
 	 * it has to be hrdcoded to 100 as per the problem statement
 	 */
-	int maxMapSideLength=100;
+	int maxMapSideLength=50;
 
 	/*
 	 * this is the map size which we will consider  
@@ -136,7 +135,6 @@ public class PathFinder implements Player
 	String stateBestLeft,stateBestRight,stateBestBoth,bestDiffExitState;
 
 	ArrayList<Integer> bestMovesOrder ;
-	private double maximumTotalUnknown = 1;
 
 
 	public static final int[][] movesArray = { { 0, 0 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 },  { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 } };
@@ -182,8 +180,7 @@ public class PathFinder implements Player
 		if(movesList.isEmpty()) { 
 			//	printMaps();
 		}
-		System.out.println("look & move + " + movesList);
-		 
+
 		lastMove=movesList.remove(0);
 		if (debug) {
 			System.out.println("\t\t\t*****round "+round+"lastMove "+lastMove+"  movesList="+movesList);
@@ -367,109 +364,167 @@ public class PathFinder implements Player
 			movesList.addAll(minSingleMovesList);
 			return;
 		}
-		state.clear();
-		state = new HashMap<String,Integer>();
-
-		String stateKey=lPlayer_X_Position+","+lPlayer_Y_Position+","+rPlayer_X_Position+","+rPlayer_Y_Position;
-		state.put(stateKey, 900);
-		//stateDistance[lPlayer_X_Position][lPlayer_Y_Position][rPlayer_X_Position][rPlayer_Y_Position]=0;
 		boolean keepExploring=true;
-		if (leftExitFound==true && rightExitFound==true) { 
-			
+		if (leftExitPassed && rightExitPassed) { 
+
 			//movesList=new ArrayList<Integer>();
 			System.out.println("bfs called " + new Date());
 			ArrayList<Integer> tempList =new ArrayList<Integer>();
 			currentLowerBond = lb.getLowerBound(leftMap, rightMap, lPlayer_Y_Exit,lPlayer_X_Exit, rPlayer_Y_Exit,rPlayer_X_Exit);
 			int lowestDelay=bfs.bfs(leftMap, rightMap, lPlayer_Y_Position, lPlayer_X_Position, rPlayer_Y_Position,
 					rPlayer_X_Position, lPlayer_X_Exit, lPlayer_Y_Exit, rPlayer_X_Exit, rPlayer_Y_Exit, tempList);
-			
+
 			System.out.println("lowestDelay " + lowestDelay + " low bound detecter " + currentLowerBond);
-			if(lowestDelay<=currentLowerBond || maximumTotalUnknown <=0) {
+			if((lowestDelay<=currentLowerBond || maximumTotalUnknown <=0) && lowestDelay!=-1) {
 				movesList = tempList;
 				keepExploring=false;
-				//System.out.println("temp list = "+tempList);
+				System.out.println("temp list = "+tempList);
 			}
 			System.out.println("bfs returned " + new Date());
 		} 
-		if(keepExploring) {
 
-			maximumTotalUnknown=browse(lPlayer_X_Position,lPlayer_Y_Position,rPlayer_X_Position,rPlayer_Y_Position,false);
+		if (keepExploring){
+			state.clear();
+			state = new HashMap<String,Integer>();
+
+			String stateKey=lPlayer_X_Position+","+lPlayer_Y_Position+","+rPlayer_X_Position+","+rPlayer_Y_Position;
+			state.put(stateKey, 900);
+			//stateDistance[lPlayer_X_Position][lPlayer_Y_Position][rPlayer_X_Position][rPlayer_Y_Position]=0;
+			 maximumTotalUnknown=browse(lPlayer_X_Position,lPlayer_Y_Position,rPlayer_X_Position,rPlayer_Y_Position,false);
+			if(debug)
+				System.out.println("maximumTotalUnknown  ="+maximumTotalUnknown);
+
+			movesList=new ArrayList<Integer>();
 			boolean movesListSet=false;
-			String nextState="";
-
-			if(justExplore == 0){
-				justExplore = maxJustExplore;
-			}
-			else{
-				justExplore--;
-			}
-			
-			if (leftExitFound==true) {
-				nextState=stateBestRight;
-				String[] arrayA=nextState.split(",");
-				int unknowns=Integer.parseInt(arrayA[6]);
-				if (unknowns<=0) {
-					nextState=stateBestBoth;
-					arrayA=nextState.split(",");
-					unknowns=Integer.parseInt(arrayA[7]);
+			if (exitReached()) {
+				updateMovesList(lPlayer_X_Exit,lPlayer_Y_Exit,rPlayer_X_Exit,rPlayer_Y_Exit);
+				if(debug) {
+					System.out.println("next state chosen  as exit");
+					System.out.println("movesList"+movesList);	
+					System.out.println("exit location "+lPlayer_X_Exit+","+lPlayer_Y_Exit+"---"+rPlayer_X_Exit+","+rPlayer_Y_Exit);	
+					printMaps();
 				}
+				movesListSet=true;
 
-				if (unknowns<=0) {
-					int steps =countStepsToExit("left",lPlayer_X_Position,lPlayer_Y_Position);
-					movesList.addAll(singleMovesList);
-					movesListSet=true;
-					if(debug)
-						System.out.println("next state was chosen stateBestRight "+stateBestRight+" but overridden by leftAloneExit  as the right player cant see anything new without left player stepping on the leftExit == movesList "+movesList+"  steps="+steps);
-				}else  {
-					if(debug) 
-						System.out.println("next state chosen stateBestRight"+nextState);
-				}
-
-				// go towards max right
 			} else {
-				if (rightExitFound==true) {
-					// go towards max left
-					nextState=stateBestLeft;
-					//System.out.println("rightExitFound but not left nextState=stateBestLeft="+stateBestLeft);
-					String[] arrayA=nextState.split(",");
-					int unknowns=Integer.parseInt(arrayA[5]);
-					if (unknowns<=0) {
-						nextState=stateBestBoth;
-						arrayA=nextState.split(",");
-						unknowns=Integer.parseInt(arrayA[7]);
-					}
+				String nextState="";
+				if (leftExitFound==true && rightExitFound==true) {
+					state.clear();
+					state = new HashMap<String,Integer>();
+					freeMemory();
+					stateKey=lPlayer_X_Position+","+lPlayer_Y_Position+","+rPlayer_X_Position+","+rPlayer_Y_Position;
+					//System.out.println("current position "+stateKey);
+					state.put(stateKey, 900);
+					maximumTotalUnknown=browse(lPlayer_X_Position,lPlayer_Y_Position,rPlayer_X_Position,rPlayer_Y_Position,true);
 
-					if (unknowns<=0) {
-						countStepsToExit("right",rPlayer_X_Position,rPlayer_Y_Position);
-						movesList.addAll(singleMovesList);
+					// exits known but path not known
+					// go towards max total
+					currentLowerBond = lb.getLowerBound(leftMap, rightMap, lPlayer_Y_Exit,lPlayer_X_Exit, rPlayer_Y_Exit,rPlayer_X_Exit);
+					//System.out.println(currentLowerBond + " lower bound =================");
+					int lowestDelay=minSingleMovesList.size();
+					//System.out.println(lowestDelay + " lowestDelay  ================="+minSingleMovesList);
+					//System.out.println(maximumTotalUnknown + " maximumTotalUnknown  =================");
+					if (lowestDelay<=currentLowerBond || maximumTotalUnknown<=0) {
+						//if ( maximumTotalUnknown<=0) {
+						String[] arrayA=bestDiffExitState.split(",");
+						int x1=Integer.parseInt(arrayA[0]); int y1=Integer.parseInt(arrayA[1]); 
+						int x2=Integer.parseInt(arrayA[2]); int y2=Integer.parseInt(arrayA[3]);
+						movesList=new ArrayList<Integer>();
+						updateMovesList(x1,y1,x2,y2);
+						//System.out.println(lowestDelay + " movesList  ================="+movesList);
+						//System.out.println(lowestDelay + " minSingleMovesList  ================="+minSingleMovesList);
+						movesList.addAll(minSingleMovesList);
+						//if(debug)
+						//System.out.println("next state chosen bestDiffExitState "+bestDiffExitState+" exploration halted as currentLowerBond="+currentLowerBond+" and lowestDelay="+lowestDelay);
+
 						movesListSet=true;
-						if(debug) System.out.println("next state was chosen stateBestLeft "+stateBestLeft+" but overridden by rightAloneExit  as the left player cant see anything new without right player stepping on the right ");
-					}else  {
-						if(debug) System.out.println("next state chosen stateBestLeft"+nextState);
-					}
-				} else {
-					nextState=stateBestBoth;
-					String[] arrayA=nextState.split(",");
-					if (Integer.parseInt(arrayA[7])<=0) {
-						System.out.println(" This line should never be printed - It means that exits are not reachable");
-					}else  {
-						if(debug) System.out.println("next state chosen stateBestBoth"+stateBestBoth);
+
+					} else {
+						// lowest delay > currentLowerBond			
+						//if (maximumTotalUnknown>0.0) {
+						// above condition is implicit
+						if(justExplore==0) {
+							justExplore=maxJustExplore;
+						} else {
+							justExplore--;
+						}
+						nextState=stateBestBoth;
+						if(debug) 
+							System.out.println("next state chosen stateBestBoth"+nextState+" justExplore="+justExplore);
 					}
 
+
+				} else {
+					// atleast one of the exits unknown
+					if (leftExitFound==true) {
+						nextState=stateBestRight;
+						String[] arrayA=nextState.split(",");
+						int unknowns=Integer.parseInt(arrayA[6]);
+						if (unknowns<=0) {
+							nextState=stateBestBoth;
+							arrayA=nextState.split(",");
+							unknowns=Integer.parseInt(arrayA[7]);
+						}
+
+						if (unknowns<=0) {
+							int steps =countStepsToExit("left",lPlayer_X_Position,lPlayer_Y_Position);
+							movesList.addAll(singleMovesList);
+							movesListSet=true;
+							if(debug)
+								System.out.println("next state was chosen stateBestRight "+stateBestRight+" but overridden by leftAloneExit  as the right player cant see anything new without left player stepping on the leftExit == movesList "+movesList+"  steps="+steps);
+						}else  {
+							if(debug) 
+								System.out.println("next state chosen stateBestRight"+nextState);
+						}
+
+						// go towards max right
+					} else {
+						if (rightExitFound==true) {
+							// go towards max left
+							nextState=stateBestLeft;
+							//System.out.println("rightExitFound but not left nextState=stateBestLeft="+stateBestLeft);
+							String[] arrayA=nextState.split(",");
+							int unknowns=Integer.parseInt(arrayA[5]);
+							if (unknowns<=0) {
+								nextState=stateBestBoth;
+								arrayA=nextState.split(",");
+								unknowns=Integer.parseInt(arrayA[7]);
+							}
+
+							if (unknowns<=0) {
+								countStepsToExit("right",rPlayer_X_Position,rPlayer_Y_Position);
+								movesList.addAll(singleMovesList);
+								movesListSet=true;
+								if(debug) System.out.println("next state was chosen stateBestLeft "+stateBestLeft+" but overridden by rightAloneExit  as the left player cant see anything new without right player stepping on the right ");
+							}else  {
+								if(debug) System.out.println("next state chosen stateBestLeft"+nextState);
+							}
+						} else {
+							nextState=stateBestBoth;
+							String[] arrayA=nextState.split(",");
+							if (Integer.parseInt(arrayA[7])<=0) {
+								System.out.println(" This line should never be printed - It means that exits are not reachable");
+							}else  {
+								if(debug) System.out.println("next state chosen stateBestBoth"+stateBestBoth);
+							}
+							// go towards max total
+						}
+					}
 				}
-			}
-			if(!movesListSet) {
-				String[] arrayA=nextState.split(",");
-				int x1=Integer.parseInt(arrayA[0]); int y1=Integer.parseInt(arrayA[1]); 
-				int x2=Integer.parseInt(arrayA[2]); int y2=Integer.parseInt(arrayA[3]);
-				int distanceToBestState=Integer.parseInt(arrayA[4]);
-				if(debug) System.out.println("next state chosen "+nextState+" with distance "+distanceToBestState);
-				updateMovesList(x1,y1,x2,y2);
+				if(!movesListSet) {
+					String[] arrayA=nextState.split(",");
+					int x1=Integer.parseInt(arrayA[0]); int y1=Integer.parseInt(arrayA[1]); 
+					int x2=Integer.parseInt(arrayA[2]); int y2=Integer.parseInt(arrayA[3]);
+					int distanceToBestState=Integer.parseInt(arrayA[4]);
+					if(debug) System.out.println("next state chosen "+nextState+" with distance "+distanceToBestState);
+					updateMovesList(x1,y1,x2,y2);
+				}
+
 			}
 		}
+
+
 	}
-
-
 
 
 	/*
@@ -484,8 +539,7 @@ public class PathFinder implements Player
 		int x1,y1,x2,y2,xm1,ym1,xm2,ym2,deltaX,deltaY,leftSame,rightSame,distance;
 		distance=0;
 		// here distance is measured in moves
-		if (round==216)
-			round+=0;
+
 		String stateName=xx1+","+yy1+","+xx2+","+yy2+","+distance+",0,0,0",stateKey;
 		stateBestLeft=stateName;stateBestRight=stateName;stateBestBoth=stateName;
 		double maxLeftScore=0,maxRightScore=0,maxTotalScore=0;
@@ -545,7 +599,8 @@ public class PathFinder implements Player
 				if(rightNext==1 )  {xm2=x2;ym2=y2;rightSame++;}
 
 				if(rightNext==4 || leftNext==4) { continue;}
-
+				if(leftSame>0) leftSame=1;
+				if(rightSame>0) rightSame=1;
 
 				if(leftSame==1 && rightSame==1) continue;
 				stateKey=xm1+","+ym1+","+xm2+","+ym2;
@@ -557,11 +612,15 @@ public class PathFinder implements Player
 						// if the control crosses this line then it means that both the exits ae known and 0 delay solution is not possible
 						if(rightNext==2  ) {
 							singleStepsRequired=countStepsToExit("left",xm1,ym1);
-							if (debug) { System.out.println("# right at exit "+xm2+","+ym2); System.out.println("# left at  "+xm1+","+ym1);System.out.println("# singleStepsRequired   "+singleStepsRequired);}
+							if (debug) { 
+								System.out.println("# right at exit "+xm2+","+ym2); System.out.println("# left at  "+xm1+","+ym1);System.out.println("# singleStepsRequired   "+singleStepsRequired);
+							}
 						}
 						if(leftNext==2 ) {
 							singleStepsRequired=countStepsToExit("right",xm2,ym2);
-							if(debug) { System.out.println("# left at exit "+xm1+","+ym1); System.out.println("# right at  "+xm2+","+ym2);System.out.println("# singleStepsRequired   "+singleStepsRequired);}
+							if(debug) {
+								System.out.println("# left at exit "+xm1+","+ym1); System.out.println("# right at  "+xm2+","+ym2);System.out.println("# singleStepsRequired   "+singleStepsRequired);
+							}
 						}
 						if(singleStepsRequired<minSingleStepsRequired) {
 							minSingleStepsRequired=singleStepsRequired; minSingleMovesList.clear(); minSingleMovesList.addAll(singleMovesList);
@@ -579,9 +638,12 @@ public class PathFinder implements Player
 					stateName=xm1+","+ym1+","+xm2+","+ym2+","+distance+","+leftUknown+","+rightUknown+","+totalUnknown;
 					//if(round>311) System.out.println(" stateKey put "+stateKey+" stateName="+stateName+" round="+round);
 					if (!((rightNext==2 &&leftNext!=2) || (rightNext!=2 &&leftNext==2))) {
-						if((10000.0*leftUknown/distance )>maxLeftScore)    { maxLeftScore=10000.0*leftUknown/distance  ; stateBestLeft=stateName;}
-						if((10000.0*rightUknown/distance )>maxRightScore)  { maxRightScore=10000.0*rightUknown/distance; stateBestRight=stateName;}
-						if((10000.0*totalUnknown/distance )>maxTotalScore) { maxTotalScore=10000.0*totalUnknown/distance;stateBestBoth=stateName;}
+						double leftValue=10000.0*leftUknown/distance;
+						double rightValue=10000.0*rightUknown/distance;
+						double totalValue=leftValue+rightValue;
+						if(leftValue>maxLeftScore)    { maxLeftScore=leftValue  ; stateBestLeft=stateName;}
+						if(rightValue>maxRightScore)  { maxRightScore=rightValue; stateBestRight=stateName;}
+						if(totalValue>maxTotalScore)  { maxTotalScore=totalValue;stateBestBoth=stateName;}
 					}
 				} else  {
 					continue;
@@ -592,7 +654,8 @@ public class PathFinder implements Player
 				}
 				if (exitReached())
 					return maxTotalScore;
-				queueElements.add(stateName);
+				if (!((rightNext==2 &&leftNext!=2) || (rightNext!=2 &&leftNext==2)))
+					queueElements.add(stateName);
 				/// queueing the new state to be explored to implement BFS like search 
 			}
 		}
@@ -950,6 +1013,19 @@ public class PathFinder implements Player
 	public void freeMemory  () {
 		Runtime r = Runtime.getRuntime();
 		r.gc();
+	}
+	public double distanceFromExit(int x,int y, String side) {
+		double distanceFromExitToReturn=0;
+
+		/*
+		 *  once the exit positions are known and reachable simultaneously / not together
+		 */
+		if(side.equals("left")) {
+			distanceFromExitToReturn=Math.pow((lPlayer_X_Exit-x), 2) +	Math.pow((lPlayer_Y_Exit-y), 2);
+		} else {
+			distanceFromExitToReturn=Math.pow((rPlayer_X_Exit-x), 2) +	Math.pow((rPlayer_Y_Exit-y), 2);
+		}
+		return Math.pow(distanceFromExitToReturn,0.5);
 	}
 }
 

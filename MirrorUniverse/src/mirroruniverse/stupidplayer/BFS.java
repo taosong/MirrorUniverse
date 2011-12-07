@@ -98,7 +98,7 @@ public class BFS {
 					// If you find that both are able to exit, add parent pointers and mark as visited and break
 					// out of loop
 					if (leftView[iprime][jprime] == 2 && rightView[kprime][lprime] == 2){
-						System.out.println("Perfect Solution found!!");
+						//System.out.println("Perfect Solution found!!");
 						assert(iprime == exitlx && jprime == exitly && kprime == exitrx && lprime == exitry);
 						retVal = 0;
 						break breakLabel;
@@ -288,7 +288,7 @@ public class BFS {
 	}
 	
 	public void printMaps(int[][] leftView, int[][] rightView){
-		if(printMaps )
+		if(!printMaps )
 			return;
 		
 		System.out.println("Left View: ");
@@ -313,14 +313,14 @@ public class BFS {
 				            {1,1,1,0,0,0},
 				            {1,1,0,0,0,1},
 				            {1,1,0,0,0,1},
-				            {1,1,0,0,1,0},
+				            {1,1,0,0,1,1},
 				            {1,1,0,0,1,2}};
 		
 		int[][] rightView = {{1,0,0,1,1,1},
 				            {1,1,1,0,0,0},
 				            {1,1,0,0,0,1},
 				            {1,1,0,0,0,1},
-				            {1,1,0,0,4,4},
+				            {1,1,0,0,0,4},
 				            {1,1,0,1,1,2}};
 		BFS bfs = new BFS();
 		List<Integer> path = new LinkedList<Integer>(); 
