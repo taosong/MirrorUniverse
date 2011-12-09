@@ -45,6 +45,10 @@ public class BFS {
 			int i = bytes[1] + 100;
 			int l = bytes[2] + 100;
 			int k = bytes[3] + 100;
+			
+			if(!(isInBound(leftView.length, i) && isInBound(leftView[0].length, j)
+					&& isInBound(rightView.length, k) && isInBound(rightView[0].length, l))) continue;
+			
 			if(leftView[i][j] == 2 || rightView[k][l] == 2) continue;
 			
 			label:
@@ -160,6 +164,11 @@ public class BFS {
 			System.out.println(":::::::::::::return = " + retVal);
 		return retVal;
 				
+	}
+	
+	
+	private boolean isInBound(int len, int index){
+		return index >= 0  && index < len;
 	}
 	
 	
