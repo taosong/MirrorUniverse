@@ -1,2 +1,2 @@
-4, 4, 5, -1, g3maps/g3_taosmap_L_4.txt, 3
-3, 3, 5, -1, g3maps/g3_taosmap_R_4.txt, 3
+4, 4, 5, -1, TM_Maps/g3_lowbound3_L_2.txt, 3
+3, 3, 5, -1, TM_Maps/g3_lowbound3_R_2.txt, 3

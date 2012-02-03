@@ -7,14 +7,14 @@ import mirroruniverse.sim.Player;
 
 public class PathFinder implements Player
 {
-	public static final boolean DEBUG =false;
+	public static final boolean DEBUG = false;
 	public static final boolean LBPRINT = false;
 	
 	int round=0;
 	LowerBoundDetecter lb = new LowerBoundDetecter();
 	BFS bfs = new BFS();
 	Date start;
-	public static final int LIMIT = 270 * 1000;
+	public static final int LIMIT = 20 * 1000;
 
 	int currentLowerBond=Integer.MAX_VALUE;
 	int justExplore=0;
@@ -374,20 +374,21 @@ public class PathFinder implements Player
 		if (leftExitPassed && rightExitPassed) { 
 
 			//movesList=new ArrayList<Integer>();
-			if (DEBUG)System.out.println("bfs called " + new Date());
+			if (DEBUG);
+				System.out.println("bfs called " + new Date());
 			ArrayList<Integer> tempList =new ArrayList<Integer>();
 			currentLowerBond = lb.getLowerBound(leftMap, rightMap, lPlayer_Y_Exit,lPlayer_X_Exit, rPlayer_Y_Exit,rPlayer_X_Exit);
 			int lowestDelay=bfs.bfs(leftMap, rightMap, lPlayer_Y_Position, lPlayer_X_Position, rPlayer_Y_Position,
 					rPlayer_X_Position, lPlayer_X_Exit, lPlayer_Y_Exit, rPlayer_X_Exit, rPlayer_Y_Exit, tempList);
 
-			if (LBPRINT)System.out.println("lowestDelay " + lowestDelay + " low bound detecter " + currentLowerBond);
+			if (LBPRINT);System.out.println("lowestDelay " + lowestDelay + " low bound detecter " + currentLowerBond);
 			boolean timeout = new Date().getTime() - start.getTime() > LIMIT;
 			if((lowestDelay<=currentLowerBond || maximumTotalUnknown <=0 || timeout) && lowestDelay!=-1) {
 				movesList = tempList;
 				keepExploring=false;
 				//System.out.println("temp list = "+tempList);
 			}
-			if (LBPRINT)System.out.println("bfs returned " + new Date());
+			if (LBPRINT);System.out.println("bfs returned " + new Date());
 		} 
 
 		if (keepExploring){
